@@ -45,16 +45,16 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     name: "Penalaran Matematika",
     short: "Matematika",
     description:
-      "Penalaran kuantitatif: aljabar, aritmetika, geometri, pola, dan statistika.",
-    subtopics: ["Aljabar", "Aritmetika", "Geometri", "Pola bilangan", "Statistika"],
+      "Penalaran kuantitatif level SMA: fungsi dan pertumbuhan, peluang, optimasi, barisan dan deret, statistika.",
+    subtopics: ["Fungsi dan pertumbuhan", "Peluang", "Optimasi", "Barisan dan deret", "Statistika"],
   },
   literasi: {
     id: "literasi",
     name: "Literasi Bahasa Indonesia",
     short: "Literasi",
     description:
-      "Memahami bacaan: ide pokok, makna kata, simpulan, dan tujuan penulis.",
-    subtopics: ["Ide pokok", "Makna kata", "Simpulan", "Tujuan penulis", "Hubungan antarkalimat"],
+      "Memahami bacaan level SNBT: simpulan, sikap penulis, evaluasi argumen, struktur teks, dan inferensi.",
+    subtopics: ["Simpulan", "Sikap penulis", "Evaluasi argumen", "Struktur teks", "Inferensi"],
   },
 };
 

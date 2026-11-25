@@ -156,9 +156,11 @@ export async function generateQuestions(
   const prompt = [
     `Buatkan ${count} soal latihan gaya SNBT untuk subtes "${info.name}" dalam Bahasa Indonesia.`,
     `Soal harus ORISINAL (tulis sendiri, jangan menyalin soal SNBT asli).`,
+    `TINGKAT KESULITAN: soal untuk siswa SMA kelas 12 yang bersiap menghadapi SNBT (UTBK) — setara ujian masuk perguruan tinggi negeri. Setiap soal harus membutuhkan minimal dua langkah penalaran. JANGAN membuat soal aritmetika satu langkah (misalnya menghitung harga barang atau luas bangun sederhana) — itu level SD, bukan SNBT.`,
+    `Untuk Penalaran Matematika: penalaran kuantitatif multi-langkah — interpretasi tabel/data, peluang dan kombinatorika, fungsi dan pertumbuhan, sistem persamaan dan optimasi, barisan dan deret.`,
+    `Untuk Literasi Bahasa Indonesia: sertakan teks bacaan 150-250 kata bergaya akademik/populer ilmiah; pertanyaan harus menuntut inferensi, evaluasi argumen, sikap penulis, simpulan, atau hubungan antarparagraf — bukan sekadar mencari ide pokok yang tertulis eksplisit.`,
     `Sebar soal ke subtopik berikut: ${topics.join(", ")}.`,
     `Setiap soal: teks soal yang jelas, 4 sampai 5 pilihan jawaban, satu kunci jawaban yang benar, label subtopik (salah satu dari daftar di atas), dan pembahasan tertulis yang menjelaskan cara mendapatkan jawabannya.`,
-    `Untuk Literasi Bahasa Indonesia, sertakan teks bacaan singkat di dalam teks soal bila diperlukan.`,
     `Jawab HANYA dengan JSON sesuai skema: {"questions": [{"text": "...", "options": ["...", "...", "...", "..."], "answerIndex": 0, "subtopic": "...", "explanation": "..."}]}.`,
   ].join(" ");
   let result;
