@@ -77,22 +77,21 @@ export default function Home() {
       let set: { questions: Question[]; inferenceSource: InferenceSource };
       let src: QuestionSource;
       if (!configured) {
-        // Sample mode: 5 hand-written questions per subtest (tryout also
-        // uses the 5 samples — there is no bigger sample bank).
-        set = sampleSet(st);
+        // Sample mode: 15 hand-written questions per subtest, shuffled.
+        set = sampleSet(st, count, focusSubtopics);
         src = "contoh";
         setNotice(
-          "Firebase belum dikonfigurasi — memakai soal contoh. Mode contoh hanya menyediakan 5 soal per subtest.",
+          "Firebase belum dikonfigurasi — memakai soal contoh. Bank soal contoh berisi 15 soal per subtest.",
         );
       } else {
         try {
           set = await generateQuestions(st, count, m, focusSubtopics);
           src = "ai";
         } catch (e) {
-          set = sampleSet(st);
+          set = sampleSet(st, count, focusSubtopics);
           src = "contoh";
           const reason = e instanceof AiError ? e.message : "AI tidak dapat dihubungi.";
-          setNotice(`${reason} Memakai soal contoh (5 soal per subtest).`);
+          setNotice(`${reason} Memakai soal contoh (15 soal per subtest).`);
         }
       }
       setQuestions(set.questions);

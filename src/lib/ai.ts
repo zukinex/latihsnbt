@@ -39,7 +39,7 @@ import {
   type GenerativeModel,
 } from "firebase/ai";
 import { getFirebaseApp } from "./firebase";
-import { parseGeneratedQuestionsText } from "./logic";
+import { parseGeneratedQuestionsText, shuffle } from "./logic";
 import { sampleQuestionsFor } from "./sample-questions";
 import {
   DrillPlan,
@@ -265,7 +265,21 @@ export async function generateDrillPlan(
 }
 
 /** Sample-question fallback set for a subtest (used when Firebase is not
- *  configured or AI generation fails). Always labelled "Soal contoh". */
-export function sampleSet(subtest: SubtestId): GeneratedSet {
-  return { questions: sampleQuestionsFor(subtest), inferenceSource: null };
+ *  configured or AI generation fails). Always labelled "Soal contoh".
+ * Returns a shuffled subset of `count` questions so a drill does not always
+ * show the same first questions; when `focusSubtopics` is given (per-topic
+ * drills), questions of those subtopics come first, then the rest fill up
+ * to `count`. */
+export function sampleSet(
+  subtest: SubtestId,
+  count: number,
+  focusSubtopics?: string[],
+): GeneratedSet {
+  const all = sampleQuestionsFor(subtest);
+  const focus =
+    focusSubtopics && focusSubtopics.length > 0
+      ? shuffle(all.filter((q) => focusSubtopics.includes(q.subtopic)))
+      : [];
+  const rest = shuffle(all.filter((q) => !focusSubtopics?.includes(q.subtopic)));
+  return { questions: [...focus, ...rest].slice(0, count), inferenceSource: null };
 }

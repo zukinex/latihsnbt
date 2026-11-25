@@ -20,7 +20,7 @@ Free, no login, text-only.
    soal orisinal gaya SNBT: teks soal, 4–5 pilihan jawaban, kunci jawaban,
    label subtopik, dan pembahasan tertulis.
 4. **Hasil** — skor, pembahasan per soal, **peta kelemahan** per subtopik
-   (misal "Aljabar 40%, Geometri 80%"), dan **rencana latihan 7 hari** yang
+   (misal "Statistika 40%, Peluang 80%"), dan **rencana latihan 7 hari** yang
    menargetkan topik terlemah, plus tombol tryout ulang / drill per topik.
 5. **Laporkan soal salah** — setiap soal punya tombol laporan; laporan
    tersimpan di localStorage.
@@ -96,9 +96,9 @@ npm run build
 5. Deploy ke Vercel dengan env var yang sama (Production).
 
 **Tanpa konfigurasi Firebase**, app tetap jalan dalam **mode contoh**: memakai
-10 soal contoh tulisan tangan (5 per subtest, diberi label "Soal contoh") dan
-menampilkan banner "Firebase belum dikonfigurasi". App tidak pernah
-berpura-pura panggilan AI berhasil.
+30 soal contoh tulisan tangan (15 per subtest, diberi label "Soal contoh"),
+semuanya dicek tangan, dan menampilkan banner "Firebase belum dikonfigurasi".
+App tidak pernah berpura-pura panggilan AI berhasil.
 
 ## Struktur
 
@@ -110,7 +110,7 @@ src/
     types.ts          tipe + metadata 2 subtes
     logic.ts          logika murni (skor, peta kelemahan, rencana, timer, validasi JSON)
     logic.test.ts     Vitest
-    sample-questions.ts  10 soal contoh orisinal (bukan salinan soal SNBT)
+    sample-questions.ts  30 soal contoh orisinal, dicek tangan (bukan salinan soal SNBT)
     storage.ts        localStorage (progres + laporan)
     firebase.ts       init Firebase dari env var + App Check debug (env-gated)
     ai.ts             generate soal + rencana latihan via Firebase AI Logic
