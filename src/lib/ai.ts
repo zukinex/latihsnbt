@@ -59,6 +59,126 @@ export class AiError extends Error {
   }
 }
 
+/** Thrown when an AI call does not finish within the per-attempt timeout. */
+export class AiTimeoutError extends Error {
+  constructor() {
+    super("Permintaan AI melewati batas waktu.");
+    this.name = "AiTimeoutError";
+  }
+}
+
+/**
+ * User-facing message when the AI service is overloaded (HTTP 500/503 after
+ * all retries). The caller falls back to the verified sample bank and shows
+ * this notice. Kept as one exact string so the UI text is stable.
+ */
+export const AI_OVERLOADED_MESSAGE =
+  "AI Google sedang penuh, memakai soal contoh dulu — coba lagi nanti.";
+
+/**
+ * User-facing message when an AI call never finishes in time. Deliberately
+ * different from the overload message: a timeout must NOT claim Google is
+ * full — it only says the AI did not answer in time.
+ */
+export const AI_TIMEOUT_MESSAGE =
+  "AI tidak merespons tepat waktu, memakai soal contoh dulu — coba lagi nanti.";
+
+/** Bounded retry policy for AI calls (approved 2026-11-26). */
+export const AI_CALL_MAX_ATTEMPTS = 3;
+export const AI_CALL_BACKOFFS_MS = [2000, 4000];
+export const AI_CALL_TIMEOUT_MS = 30_000;
+
+/**
+ * True when the error is an HTTP 500/503 from the AI backend (transient
+ * overload). The Firebase AI Logic error carries the status in brackets,
+ * e.g. "[500 Internal Server Error] This model is currently experiencing
+ * high demand...". ONLY the bracketed status counts — loose phrases such
+ * as "high demand" must never trigger a retry on their own (a 403 could
+ * carry the same words). Only 500/503 errors are retried; anything else
+ * (403, 400, timeout, ...) fails immediately.
+ */
+export function isRetryableAiError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /\[50[03]\b/.test(message);
+}
+
+/** True when the error is a timeout/abort (ours or the SDK's own). */
+function isTimeoutError(error: unknown): boolean {
+  if (error instanceof AiTimeoutError) return true;
+  if (!(error instanceof Error)) return false;
+  return (
+    error.name === "AbortError" ||
+    error.name === "TimeoutError" ||
+    /abort|timeout|timed out/i.test(error.message)
+  );
+}
+
+export interface AiCallOptions {
+  maxAttempts?: number;
+  backoffsMs?: number[];
+  timeoutMs?: number;
+  /** Injectable sleep (tests pass a fake that records delays). */
+  sleep?: (ms: number) => Promise<void>;
+}
+
+const defaultSleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Run one AI call with a per-attempt timeout and bounded retries.
+ *
+ * - Timeout: each attempt gets its own AbortController; a timer aborts it
+ *   after `timeoutMs`, and the call is raced against the timer so the
+ *   helper never waits on a hung request. The attempt MUST forward the
+ *   signal to the SDK call (`model.generateContent(prompt, { timeout,
+ *   signal })`) — the SDK aborts the underlying HTTP request on abort, so
+ *   no long request keeps running after the timeout. The SDK's own
+ *   `timeout` option (default 180s) is set to the same value as a backstop.
+ * - Retry: only HTTP 500/503 is retried, at most `maxAttempts` attempts
+ *   in total, with exponential backoff between attempts. Every other
+ *   error — including a timeout — fails immediately, without retry.
+ */
+export async function callAiWithRetry<T>(
+  attempt: (signal: AbortSignal) => Promise<T>,
+  options: AiCallOptions = {},
+): Promise<T> {
+  const maxAttempts = options.maxAttempts ?? AI_CALL_MAX_ATTEMPTS;
+  const backoffs = options.backoffsMs ?? AI_CALL_BACKOFFS_MS;
+  const timeoutMs = options.timeoutMs ?? AI_CALL_TIMEOUT_MS;
+  const sleep = options.sleep ?? defaultSleep;
+  let lastError: unknown;
+  for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++) {
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new AiTimeoutError());
+      }, timeoutMs);
+    });
+    try {
+      const value = await Promise.race([attempt(controller.signal), timeoutPromise]);
+      if (timer !== undefined) clearTimeout(timer);
+      return value;
+    } catch (error) {
+      if (timer !== undefined) clearTimeout(timer);
+      lastError = error;
+      // A timeout is not an HTTP 500/503: it fails immediately, never retried.
+      if (controller.signal.aborted || isTimeoutError(error)) {
+        throw new AiTimeoutError();
+      }
+      // Only HTTP 500/503 is retried, with backoff, up to maxAttempts.
+      if (isRetryableAiError(error) && attemptIndex < maxAttempts - 1) {
+        const delay = backoffs[Math.min(attemptIndex, backoffs.length - 1)];
+        await sleep(delay);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
+
 let aiService: ReturnType<typeof getAI> | null = null;
 
 function getAiService() {
@@ -67,6 +187,18 @@ function getAiService() {
   if (!app) return null;
   aiService = getAI(app, { backend: new GoogleAIBackend() });
   return aiService;
+}
+
+/**
+ * User-facing message for an AI failure. Overload (500/503 after all retries)
+ * says the service is full; a timeout says only that the AI did not answer
+ * in time — it must not claim Google is full. Anything else keeps the
+ * technical message (the caller shows it in the fallback notice).
+ */
+export function aiFailureMessage(error: unknown): string {
+  if (error instanceof AiTimeoutError) return AI_TIMEOUT_MESSAGE;
+  if (isRetryableAiError(error)) return AI_OVERLOADED_MESSAGE;
+  return `Gagal memanggil Firebase AI Logic: ${error instanceof Error ? error.message : "error tidak diketahui"}`;
 }
 
 // --- Question schema (Firebase Schema helpers, per the docs) ---
@@ -102,13 +234,20 @@ const drillPlanSchema = Schema.object({
   },
 });
 
-function buildQuestionModel(mode: SessionMode): GenerativeModel {
+function buildQuestionModel(
+  mode: SessionMode,
+  inferenceModeOverride?: InferenceMode,
+): GenerativeModel {
   const ai = getAiService();
   if (!ai) throw new AiError("Firebase belum dikonfigurasi.");
   // Drill cepat: prefer on-device (Nano if available, cloud fallback).
   // Tryout: prefer cloud (longer, calibrated questions + analysis).
+  // The override exists ONLY for the cloud-only live test (ONLY_IN_CLOUD,
+  // so a Nano fallback can never mask a cloud failure). Product call sites
+  // never pass it, so product behavior is unchanged.
   const inferenceMode =
-    mode === "drill" ? InferenceMode.PREFER_ON_DEVICE : InferenceMode.PREFER_IN_CLOUD;
+    inferenceModeOverride ??
+    (mode === "drill" ? InferenceMode.PREFER_ON_DEVICE : InferenceMode.PREFER_IN_CLOUD);
   return getGenerativeModel(ai, {
     mode: inferenceMode,
     inCloudParams: {
@@ -150,9 +289,10 @@ export async function generateQuestions(
   count: number,
   mode: SessionMode,
   focusSubtopics?: string[],
+  options?: { inferenceMode?: InferenceMode },
 ): Promise<GeneratedSet> {
   const info = SUBTESTS[subtest];
-  const model = buildQuestionModel(mode);
+  const model = buildQuestionModel(mode, options?.inferenceMode);
   const topics = focusSubtopics && focusSubtopics.length > 0 ? focusSubtopics : info.subtopics;
   // Literasi Inggris: bacaan, pertanyaan, dan pilihan jawaban dalam Bahasa
   // Inggris; pembahasan tetap Bahasa Indonesia (konsisten dengan UI app).
@@ -176,11 +316,19 @@ export async function generateQuestions(
   ].join(" ");
   let result;
   try {
-    result = await model.generateContent(prompt);
-  } catch (e) {
-    throw new AiError(
-      `Gagal memanggil Firebase AI Logic: ${e instanceof Error ? e.message : "error tidak diketahui"}`,
+    // Bounded retry + real cancellation: the signal aborts the underlying
+    // HTTP request on timeout, and the SDK timeout is set to the same value.
+    result = await callAiWithRetry((signal) =>
+      model.generateContent(prompt, { timeout: AI_CALL_TIMEOUT_MS, signal }),
     );
+  } catch (e) {
+    // Overload or timeout: log the technical detail for debugging; the
+    // caller falls back to the verified sample bank and shows the friendly
+    // message (never the raw technical error).
+    if (e instanceof AiTimeoutError || isRetryableAiError(e)) {
+      console.error("LatihSNBT AI failure:", e instanceof Error ? e.message : e);
+    }
+    throw new AiError(aiFailureMessage(e));
   }
   const text = result.response.text();
   const questions = parseGeneratedQuestionsText(
@@ -252,7 +400,9 @@ export async function generateDrillPlan(
     `Jawab HANYA dengan JSON sesuai skema: {"days": [{"day": 1, "subtopic": "...", "focus": "...", "target": "..."}]}.`,
   ].join(" ");
   try {
-    const result = await model.generateContent(prompt);
+    const result = await callAiWithRetry((signal) =>
+      model.generateContent(prompt, { timeout: AI_CALL_TIMEOUT_MS, signal }),
+    );
     const cleaned = result.response
       .text()
       .replace(/```json\s*/gi, "")
