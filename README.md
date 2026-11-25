@@ -60,8 +60,8 @@ result.response.inferenceSource;  // "ON_DEVICE" | "IN_CLOUD" — ditampilkan di
 - **Drill cepat** memakai `PREFER_ON_DEVICE` (on-device Gemini Nano bila
   tersedia, fallback ke cloud). **Tryout + rencana latihan** memakai
   `PREFER_IN_CLOUD`.
-- Nama model cloud **tidak** di-hardcode: dipakai model default SDK
-  (gemini-3.5-flash-lite, sesuai dokumentasi JS SDK v13.0.0+).
+- Model cloud: `gemini-3.8-flash` (stabil, pengganti resmi lini Flash 3.5/3.6/3.7
+  menurut dokumentasi Firebase AI Logic; dipakai eksplisit di `inCloudParams.model`).
 - Output terstruktur via `Schema` helpers + `responseMimeType:
   "application/json"` (cloud) dan `responseConstraint` (on-device), lalu
   divalidasi ketat sebelum ditampilkan — jawaban AI yang tidak sesuai format

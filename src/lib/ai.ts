@@ -18,9 +18,10 @@
 //   result.response.inferenceSource;   // "ON_DEVICE" | "IN_CLOUD" (SDK v12.5.0+)
 //
 // Notes:
-// - The cloud model is the SDK's documented default cloud-hosted model
-//   (gemini-3.5-flash-lite, JS SDK v13.0.0+), set explicitly in
-//   `inCloudParams.model`. No other model name is guessed.
+// - The cloud model is gemini-3.8-flash (stable, Firebase AI Logic docs,
+//   verified 2026-11-26), set explicitly in `inCloudParams.model`.
+//   It replaced gemini-3.5-flash-lite on 2026-11-26 after that model
+//   returned HTTP 500 "high demand" twice in live tests.
 // - On-device inference uses Chrome's Prompt API (Gemini Nano). Its
 //   supported languages are limited, so Indonesian prompts will usually
 //   fall back to the cloud — that is the designed behaviour of
@@ -111,10 +112,10 @@ function buildQuestionModel(mode: SessionMode): GenerativeModel {
   return getGenerativeModel(ai, {
     mode: inferenceMode,
     inCloudParams: {
-      // Cloud model: the SDK's documented default cloud-hosted model
-      // ("gemini-3.5-flash-lite", JS SDK v13.0.0+), used automatically as
+      // Cloud model: gemini-3.8-flash (stable; the documented replacement
+      // for the gemini-3.5/3.6/3.7 Flash line), used automatically as
       // the PREFER_ON_DEVICE fallback and for PREFER_IN_CLOUD.
-      model: "gemini-3.5-flash-lite",
+      model: "gemini-3.8-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: questionSchema,
@@ -229,8 +230,8 @@ export async function generateDrillPlan(
   const model = getGenerativeModel(ai, {
     mode: InferenceMode.PREFER_IN_CLOUD,
     inCloudParams: {
-      // Same documented default cloud model as question generation.
-      model: "gemini-3.5-flash-lite",
+      // Same cloud model as question generation (gemini-3.8-flash).
+      model: "gemini-3.8-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: drillPlanSchema,
