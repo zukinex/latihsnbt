@@ -13,9 +13,13 @@ Free, no login, text-only.
 
 ## Yang bisa dilakukan app ini
 
-1. **Pilih subtes** — Penalaran Matematika atau Literasi Bahasa Indonesia.
-2. **Pilih mode** — Drill Cepat (5 soal, tanpa timer) atau Tryout (15 soal,
-   berwaktu ~75 detik/soal seperti ujian asli).
+1. **Pilih subtes** — 7 subtes SNBT: Penalaran Umum, Pengetahuan dan
+   Pemahaman Umum, Pemahaman Bacaan dan Menulis, Pengetahuan Kuantitatif,
+   Literasi Bahasa Indonesia, Literasi dalam Bahasa Inggris, dan Penalaran
+   Matematika.
+2. **Pilih mode** — Drill Cepat (5 soal, tanpa timer) atau Tryout (15 soal
+   yang dibuat AI, atau 14 soal contoh untuk 5 subtes baru; berwaktu ~75
+   detik/soal seperti ujian asli).
 3. **Soal dibuat AI secara live** — Gemini (lewat Firebase AI Logic) menulis
    soal orisinal gaya SNBT: teks soal, 4–5 pilihan jawaban, kunci jawaban,
    label subtopik, dan pembahasan tertulis.
@@ -96,9 +100,11 @@ npm run build
 5. Deploy ke Vercel dengan env var yang sama (Production).
 
 **Tanpa konfigurasi Firebase**, app tetap jalan dalam **mode contoh**: memakai
-30 soal contoh tulisan tangan (15 per subtest, diberi label "Soal contoh"),
-semuanya dicek tangan, dan menampilkan banner "Firebase belum dikonfigurasi".
-App tidak pernah berpura-pura panggilan AI berhasil.
+100 soal contoh tulisan tangan (15 soal untuk Penalaran Matematika dan
+Literasi Bahasa Indonesia, 14 soal untuk masing-masing dari 5 subtes lainnya;
+diberi label "Soal contoh"), semuanya dicek tangan, dan menampilkan banner
+"Firebase belum dikonfigurasi". App tidak pernah berpura-pura panggilan AI
+berhasil.
 
 ## Struktur
 
@@ -107,10 +113,10 @@ src/
   app/            Next.js App Router (page.tsx = orkestrator alur)
   components/     HomeScreen, QuizScreen, ResultsScreen
   lib/
-    types.ts          tipe + metadata 2 subtes
+    types.ts          tipe + metadata 7 subtes
     logic.ts          logika murni (skor, peta kelemahan, rencana, timer, validasi JSON)
     logic.test.ts     Vitest
-    sample-questions.ts  30 soal contoh orisinal, dicek tangan (bukan salinan soal SNBT)
+    sample-questions.ts  100 soal contoh orisinal, dicek tangan (bukan salinan soal SNBT)
     storage.ts        localStorage (progres + laporan)
     firebase.ts       init Firebase dari env var + App Check debug (env-gated)
     ai.ts             generate soal + rencana latihan via Firebase AI Logic

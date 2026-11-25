@@ -57,10 +57,9 @@ export default function Home() {
     setHistory(loadProgress());
   }, []);
 
-  const bestScores = {
-    matematika: bestScoreFor("matematika"),
-    literasi: bestScoreFor("literasi"),
-  };
+  const bestScores = Object.fromEntries(
+    (Object.keys(SUBTESTS) as SubtestId[]).map((id) => [id, bestScoreFor(id)]),
+  ) as Record<SubtestId, number | null>;
 
   const startSession = useCallback(
     async (st: SubtestId, m: SessionMode, focusSubtopics?: string[]) => {
@@ -70,18 +69,21 @@ export default function Home() {
       setPlan(null);
       setStage("loading");
       const count = m === "drill" ? DRILL_QUESTION_COUNT : TRYOUT_QUESTION_COUNT;
+      // In sample mode a Tryout serves at most the subtest's bank size
+      // (14 for the five newer subtests); AI mode always generates 15.
+      const tryoutCount = configured ? TRYOUT_QUESTION_COUNT : SUBTESTS[st].bankSize;
       setLoadingMsg(
-        m === "drill" ? "Membuat 5 soal drill…" : "Membuat 15 soal tryout…",
+        m === "drill" ? "Membuat 5 soal drill…" : `Membuat ${tryoutCount} soal tryout…`,
       );
 
       let set: { questions: Question[]; inferenceSource: InferenceSource };
       let src: QuestionSource;
       if (!configured) {
-        // Sample mode: 15 hand-written questions per subtest, shuffled.
+        // Sample mode: hand-written questions per subtest, shuffled.
         set = sampleSet(st, count, focusSubtopics);
         src = "contoh";
         setNotice(
-          "Firebase belum dikonfigurasi — memakai soal contoh. Bank soal contoh berisi 15 soal per subtest.",
+          `Firebase belum dikonfigurasi — memakai soal contoh. Bank soal contoh berisi ${SUBTESTS[st].bankSize} soal untuk subtes ini.`,
         );
       } else {
         try {
@@ -91,7 +93,7 @@ export default function Home() {
           set = sampleSet(st, count, focusSubtopics);
           src = "contoh";
           const reason = e instanceof AiError ? e.message : "AI tidak dapat dihubungi.";
-          setNotice(`${reason} Memakai soal contoh (15 soal per subtest).`);
+          setNotice(`${reason} Memakai soal contoh (${SUBTESTS[st].bankSize} soal untuk subtes ini).`);
         }
       }
       setQuestions(set.questions);
@@ -220,8 +222,8 @@ export default function Home() {
         onStart={(st, m) => startSession(st, m)}
       />
       <div className="mx-auto max-w-3xl px-4 pb-6 text-center text-xs text-gray-400">
-        LatihSNBT · #BuildHybridAI 2026 · {SUBTESTS.matematika.name} &amp;{" "}
-        {SUBTESTS.literasi.name}
+        LatihSNBT · #BuildHybridAI 2026 · 7 subtes SNBT · 100 soal contoh
+        terverifikasi
       </div>
     </main>
   );

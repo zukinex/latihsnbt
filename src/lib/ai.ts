@@ -153,12 +153,22 @@ export async function generateQuestions(
   const info = SUBTESTS[subtest];
   const model = buildQuestionModel(mode);
   const topics = focusSubtopics && focusSubtopics.length > 0 ? focusSubtopics : info.subtopics;
+  // Literasi Inggris: bacaan, pertanyaan, dan pilihan jawaban dalam Bahasa
+  // Inggris; pembahasan tetap Bahasa Indonesia (konsisten dengan UI app).
+  const isEnglish = subtest === "literasi-inggris";
   const prompt = [
-    `Buatkan ${count} soal latihan gaya SNBT untuk subtes "${info.name}" dalam Bahasa Indonesia.`,
+    isEnglish
+      ? `Buatkan ${count} soal latihan gaya SNBT untuk subtes "${info.name}" in English (passage, question, and options in English; the explanation in Bahasa Indonesia).`
+      : `Buatkan ${count} soal latihan gaya SNBT untuk subtes "${info.name}" dalam Bahasa Indonesia.`,
     `Soal harus ORISINAL (tulis sendiri, jangan menyalin soal SNBT asli).`,
     `TINGKAT KESULITAN: soal untuk siswa SMA kelas 12 yang bersiap menghadapi SNBT (UTBK) — setara ujian masuk perguruan tinggi negeri. Setiap soal harus membutuhkan minimal dua langkah penalaran. JANGAN membuat soal aritmetika satu langkah (misalnya menghitung harga barang atau luas bangun sederhana) — itu level SD, bukan SNBT.`,
     `Untuk Penalaran Matematika: penalaran kuantitatif multi-langkah — interpretasi tabel/data, peluang dan kombinatorika, fungsi dan pertumbuhan, sistem persamaan dan optimasi, barisan dan deret.`,
     `Untuk Literasi Bahasa Indonesia: sertakan teks bacaan 150-250 kata bergaya akademik/populer ilmiah; pertanyaan harus menuntut inferensi, evaluasi argumen, sikap penulis, simpulan, atau hubungan antarparagraf — bukan sekadar mencari ide pokok yang tertulis eksplisit.`,
+    `Untuk Penalaran Umum: pola bilangan dan huruf, analogi, silogisme dan kesimpulan logis (termasuk mengenali kesimpulan yang tidak dapat dipastikan dari premisnya), serta penalaran kuantitatif — setiap soal harus membutuhkan minimal dua langkah penalaran.`,
+    `Untuk Pengetahuan dan Pemahaman Umum: makna kata dalam konteks (sinonim/antonim), fakta dan informasi umum yang benar dan dapat diverifikasi; JANGAN membuat soal hafalan yang jawabannya tidak dapat dipastikan atau diperdebatkan.`,
+    `Untuk Pemahaman Bacaan dan Menulis: sertakan teks bacaan 150-250 kata; pertanyaan tentang gagasan utama, kalimat yang tidak relevan, urutan kalimat yang logis, atau perbaikan kalimat (kalimat efektif, pilihan kata yang tepat, menghilangkan kerancuan dan pengulangan).`,
+    `Untuk Pengetahuan Kuantitatif: bilangan (FPB/KPK, pangkat, sisa pembagian), aljabar (persamaan, nilai mutlak, fungsi), geometri dan pengukuran (luas, volume, Pythagoras), data dan peluang — setiap soal harus membutuhkan minimal dua langkah penalaran.`,
+    `Untuk Literasi dalam Bahasa Inggris: sertakan teks bacaan 150-250 kata dalam Bahasa Inggris; pertanyaan tentang main idea, inference, vocabulary in context, atau author's purpose — tulis teks bacaan, pertanyaan, dan pilihan jawaban dalam Bahasa Inggris, tetapi pembahasan (explanation) dalam Bahasa Indonesia.`,
     `Sebar soal ke subtopik berikut: ${topics.join(", ")}.`,
     `Setiap soal: teks soal yang jelas, 4 sampai 5 pilihan jawaban, satu kunci jawaban yang benar, label subtopik (salah satu dari daftar di atas), dan pembahasan tertulis yang menjelaskan cara mendapatkan jawabannya.`,
     `Jawab HANYA dengan JSON sesuai skema: {"questions": [{"text": "...", "options": ["...", "...", "...", "..."], "answerIndex": 0, "subtopic": "...", "explanation": "..."}]}.`,

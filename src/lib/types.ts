@@ -2,7 +2,14 @@
 // SNBT = Seleksi Nasional Berdasarkan Tes, Indonesia's state-university
 // entrance exam. All user-facing text is Bahasa Indonesia.
 
-export type SubtestId = "matematika" | "literasi";
+export type SubtestId =
+  | "matematika"
+  | "literasi"
+  | "penalaran-umum"
+  | "pengetahuan-umum"
+  | "bacaan-menulis"
+  | "pengetahuan-kuantitatif"
+  | "literasi-inggris";
 
 export type SessionMode = "drill" | "tryout";
 
@@ -37,6 +44,10 @@ export interface SubtestInfo {
   description: string;
   /** Subtopics the AI is asked to cover (also the weakness-map axes). */
   subtopics: string[];
+  /** How many hand-written sample questions exist for this subtest
+   *  (15 for the two original subtests, 14 for the five added later).
+   *  A sample-mode Tryout serves at most this many questions. */
+  bankSize: number;
 }
 
 export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
@@ -47,6 +58,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Penalaran kuantitatif level SMA: fungsi dan pertumbuhan, peluang, optimasi, barisan dan deret, statistika.",
     subtopics: ["Fungsi dan pertumbuhan", "Peluang", "Optimasi", "Barisan dan deret", "Statistika"],
+    bankSize: 15,
   },
   literasi: {
     id: "literasi",
@@ -55,6 +67,52 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Memahami bacaan level SNBT: simpulan, sikap penulis, evaluasi argumen, struktur teks, dan inferensi.",
     subtopics: ["Simpulan", "Sikap penulis", "Evaluasi argumen", "Struktur teks", "Inferensi"],
+    bankSize: 15,
+  },
+  "penalaran-umum": {
+    id: "penalaran-umum",
+    name: "Penalaran Umum",
+    short: "Penalaran Umum",
+    description:
+      "Penalaran induktif, deduktif, dan kuantitatif level SNBT: pola bilangan dan huruf, analogi, silogisme, dan penalaran angka.",
+    subtopics: ["Induktif", "Deduktif", "Kuantitatif"],
+    bankSize: 14,
+  },
+  "pengetahuan-umum": {
+    id: "pengetahuan-umum",
+    name: "Pengetahuan dan Pemahaman Umum",
+    short: "Pengetahuan Umum",
+    description:
+      "Leksikal, informasi umum, dan pengetahuan umum: makna kata dalam konteks, fakta, dan wawasan umum.",
+    subtopics: ["Leksikal", "Informasi umum", "Pengetahuan umum"],
+    bankSize: 14,
+  },
+  "bacaan-menulis": {
+    id: "bacaan-menulis",
+    name: "Pemahaman Bacaan dan Menulis",
+    short: "Bacaan & Menulis",
+    description:
+      "Memilih, menata, dan memperbaiki gagasan dalam teks: gagasan utama, urutan kalimat yang logis, dan kalimat efektif.",
+    subtopics: ["Pemilihan gagasan", "Penataan gagasan", "Perbaikan gagasan"],
+    bankSize: 14,
+  },
+  "pengetahuan-kuantitatif": {
+    id: "pengetahuan-kuantitatif",
+    name: "Pengetahuan Kuantitatif",
+    short: "Kuantitatif",
+    description:
+      "Matematika dasar level SNBT: bilangan, aljabar, geometri dan pengukuran, data dan peluang.",
+    subtopics: ["Bilangan", "Aljabar", "Geometri dan pengukuran", "Data dan peluang"],
+    bankSize: 14,
+  },
+  "literasi-inggris": {
+    id: "literasi-inggris",
+    name: "Literasi dalam Bahasa Inggris",
+    short: "Literasi Inggris",
+    description:
+      "Reading comprehension in English: main idea, inference, vocabulary in context, and author's purpose.",
+    subtopics: ["Main idea", "Inference", "Vocabulary in context", "Author's purpose"],
+    bankSize: 14,
   },
 };
 

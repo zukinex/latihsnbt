@@ -10,7 +10,7 @@
 ## Total runtime target: ~2 min 30 s
 
 ### 0:00–0:30 — The idea (must land here)
-- **Visual:** home screen of LatihSNBT (two subtests, two modes visible).
+- **Visual:** home screen of LatihSNBT (seven subtests, two modes visible).
 - **Narration:** "Meet LatihSNBT — an adaptive SNBT tryout app for Indonesian
   students. Every year, hundreds of thousands of students take SNBT, the
   university entrance exam — but the best prep apps charge for tryouts, and a

@@ -21,10 +21,12 @@ can't pay is stuck re-reading the same bank. Asking a generic chatbot for
 practice questions is no better: no timer, no scoring, no diagnosis of what
 to fix.
 
-**What LatihSNBT does.** A student picks a subtest (Penalaran Matematika or
-Literasi Bahasa Indonesia) and a mode — Quick Drill (5 questions, no timer)
-or full Tryout (15 questions, timed at ~75 seconds per question, like the
-real exam). The app then:
+**What LatihSNBT does.** A student picks one of 7 SNBT subtests (Penalaran
+Umum, Pengetahuan dan Pemahaman Umum, Pemahaman Bacaan dan Menulis,
+Pengetahuan Kuantitatif, Literasi Bahasa Indonesia, Literasi dalam Bahasa
+Inggris, or Penalaran Matematika) and a mode — Quick Drill (5 questions, no
+timer) or full Tryout (15 questions, timed at ~75 seconds per question, like
+the real exam). The app then:
 
 1. Generates original SNBT-style questions live — question text, 4–5 options,
    answer key, subtopic label, and a written explanation for every item.

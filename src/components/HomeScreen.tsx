@@ -1,7 +1,14 @@
 // Home screen: pick a subtest + mode, see best scores and recent sessions.
 "use client";
 
-import { SUBTESTS, type SessionMode, type SessionRecord, type SubtestId } from "../lib/types";
+import {
+  SUBTESTS,
+  TRYOUT_QUESTION_COUNT,
+  type SessionMode,
+  type SessionRecord,
+  type SubtestId,
+  type SubtestInfo,
+} from "../lib/types";
 
 interface HomeScreenProps {
   configured: boolean;
@@ -10,10 +17,18 @@ interface HomeScreenProps {
   onStart: (subtest: SubtestId, mode: SessionMode) => void;
 }
 
-const MODE_LABEL: Record<SessionMode, { title: string; desc: string }> = {
-  drill: { title: "Drill Cepat", desc: "5 soal, tanpa timer. Latihan singkat." },
-  tryout: { title: "Tryout", desc: "15 soal, berwaktu seperti ujian asli." },
+const MODE_TITLE: Record<SessionMode, string> = {
+  drill: "Drill Cepat",
+  tryout: "Tryout",
 };
+
+/** Tryout serves 15 AI-generated questions, or at most the subtest's sample
+ *  bank size in sample mode (14 for the five newer subtests). */
+function modeDesc(mode: SessionMode, info: SubtestInfo, configured: boolean): string {
+  if (mode === "drill") return "5 soal, tanpa timer. Latihan singkat.";
+  const n = configured ? TRYOUT_QUESTION_COUNT : info.bankSize;
+  return `${n} soal, berwaktu seperti ujian asli.`;
+}
 
 export default function HomeScreen({ configured, bestScores, recent, onStart }: HomeScreenProps) {
   return (
@@ -57,15 +72,15 @@ export default function HomeScreen({ configured, bestScores, recent, onStart }: 
                 </p>
               )}
               <div className="mt-4 space-y-2">
-                {(Object.keys(MODE_LABEL) as SessionMode[]).map((mode) => (
+                {(Object.keys(MODE_TITLE) as SessionMode[]).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => onStart(id, mode)}
                     className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-left text-sm font-semibold text-white hover:bg-emerald-700"
                   >
-                    {MODE_LABEL[mode].title}
+                    {MODE_TITLE[mode]}
                     <span className="block text-xs font-normal text-emerald-100">
-                      {MODE_LABEL[mode].desc}
+                      {modeDesc(mode, info, configured)}
                     </span>
                   </button>
                 ))}
