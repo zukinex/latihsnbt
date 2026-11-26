@@ -5,11 +5,11 @@
 // parseGeneratedQuestionsText and BEFORE any question reaches a student.
 //
 // Three verdicts (approved 2026-11-26):
-//   VALID        — the explanation's final derived value equals the keyed
-//                  option, and no defect rule fired. This confirms ONLY the
-//                  final value, not the intermediate steps, the method, or
-//                  whether the derived quantity is the one the question asks
-//                  for. Only VALID questions may be delivered.
+//   VALID        — the conclusion segment's final derived value equals the
+//                  keyed option, and no defect rule fired. This confirms
+//                  ONLY the final value, not the intermediate steps, the
+//                  method, or whether the derived quantity is the one the
+//                  question asks for. Only VALID questions may be delivered.
 //   INVALID      — a defect was found (bad structure, wrong subtopic,
 //                  duplicate/ambiguous options, leaked internal deliberation
 //                  in the explanation, or the explanation's own derivation
@@ -37,7 +37,14 @@
 //     with wrong arithmetic, a wrong method (mean instead of median), a
 //     bare assertion ("Luas = 25."), or an ill-posed question whose key is
 //     restated at the end all return VALID, because only the final value
-//     after the last "=" is compared with the key.
+//     after the last "=" in the conclusion segment is compared with the key.
+//     The conclusion segment starts at the last conclusion marker
+//     ("Jadi", "Maka", "sehingga", …) and extends across following
+//     derivation sentences, stopping at verification / trap notes; without
+//     a marker the whole explanation is used.
+//   - When the conclusion states two different values and the key matches
+//     the earlier one (not the last), the verdict is INCONCLUSIVE
+//     ("ambiguous-conclusion") rather than a guess.
 //   - Clock-time answers are compared in minutes, and the explanation must
 //     state its final answer as a clock time: a bare duration ("1200
 //     menit") does not confirm a time-of-day key.
@@ -224,6 +231,147 @@ function isClockTimeKey(key: string): boolean {
   return /pukul\s+\d{1,2}[.:]\d{2}/i.test(key);
 }
 
+// --- Conclusion segment ---------------------------------------------------
+// The final value is read from the CONCLUSION of the explanation, not from
+// its last line: a trailing verification sentence or a trap note must not
+// override the answer the explanation concludes with.
+//
+// Real cases (seed audit, 2026-11-26):
+//   - contoh-mat-14: "…sehingga a = 93 ÷ 31 = 3. Periksa: 3 + 6 + 12 + 24
+//     + 48 = 93." — the last "=" (93) is the verification sum, not the
+//     answer (3).
+//   - contoh-mat-6: "…Jadi total utang = Rp5.306.040,00. (Rp5.300.000,00
+//     adalah jebakan … = Rp300.000,00.)" — the last "=" is the trap note.
+// The segment starts at the last conclusion marker and extends across
+// following derivation sentences, stopping at the first verification /
+// trap sentence or a sentence without "=". Without a usable marker the
+// whole explanation is used (previous behaviour, no regression for
+// marker-less explanations).
+
+const CONCLUSION_MARKERS = [
+  "jadi",
+  "maka",
+  "dengan demikian",
+  "sehingga",
+  "oleh karena itu",
+  "kesimpulannya",
+  "hasilnya",
+  "diperoleh",
+  "didapat",
+  "jawabannya",
+];
+
+/** Index just past the sentence terminator at/after `from`, or the end of
+ *  the text. A "." / "!" / "?" only ends a sentence when followed by a
+ *  capital letter, "(", or the end of the text — so periods inside
+ *  numbers ("Rp5.306.040,00") never split a sentence. */
+function sentenceEndIndex(text: string, from: number): number {
+  for (let i = from; i < text.length; i++) {
+    const c = text[i];
+    if (c !== "." && c !== "!" && c !== "?") continue;
+    let j = i + 1;
+    if (j >= text.length) return j;
+    if (text[j] === " " || text[j] === "\t" || text[j] === "\n") {
+      while (j < text.length && /\s/.test(text[j])) j++;
+      if (j >= text.length) return i + 1;
+      const next = text[j];
+      if ((next >= "A" && next <= "Z") || next === "(") return i + 1;
+    }
+  }
+  return text.length;
+}
+
+/** True when a sentence is a verification or trap note, not derivation:
+ *  parenthetical ("(… adalah jebakan …)"), or it checks / re-derives an
+ *  earlier value ("Periksa: …", "Kita cek: …") or discusses a distractor. */
+function isVerificationOrTrapSentence(sentence: string): boolean {
+  const s = sentence.trim().toLowerCase();
+  if (s.startsWith("(")) return true;
+  if (s.startsWith("bukti") || s.startsWith("pemeriksaan")) return true;
+  return (
+    s.includes("periksa") ||
+    s.includes("cek") ||
+    s.includes("verifikasi") ||
+    s.includes("jebakan") ||
+    s.includes("pengecoh") ||
+    s.includes("distraktor")
+  );
+}
+
+/** The conclusion segment of an explanation: from the last conclusion
+ *  marker through its sentence, extended across following derivation
+ *  sentences (each must contain "=" and must not be a verification /
+ *  trap note). Markers are walked from last to first — a trailing
+ *  marker whose sentence has no "=" and no clock time ("Jadi benar.")
+ *  is skipped. With no usable marker the whole explanation is returned. */
+function conclusionSegment(explanation: string): string {
+  const lower = explanation.toLowerCase();
+  const occurrences: { index: number }[] = [];
+  for (const marker of CONCLUSION_MARKERS) {
+    const re = new RegExp(`\\b${marker}\\b`, "g");
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(lower)) !== null) {
+      occurrences.push({ index: m.index });
+    }
+  }
+  occurrences.sort((a, b) => b.index - a.index);
+  for (const { index } of occurrences) {
+    const end = sentenceEndIndex(explanation, index);
+    const sentence = explanation.slice(index, end);
+    const usable = sentence.includes("=") || /\d{1,2}[.:]\d{2}/.test(sentence);
+    if (!usable) continue;
+    let segEnd = end;
+    let cursor = end;
+    while (cursor < explanation.length) {
+      let nextStart = cursor;
+      while (nextStart < explanation.length && /\s/.test(explanation[nextStart])) nextStart++;
+      if (nextStart >= explanation.length) break;
+      const nextEnd = sentenceEndIndex(explanation, nextStart);
+      const nextSentence = explanation.slice(nextStart, nextEnd);
+      if (isVerificationOrTrapSentence(nextSentence)) break;
+      if (!nextSentence.includes("=")) break;
+      segEnd = nextEnd;
+      cursor = nextEnd;
+    }
+    return explanation.slice(index, segEnd);
+  }
+  return explanation;
+}
+
+/** Every numeric value after an "=" in the text, in order (same per-"="
+ *  extraction as finalDerivedValue; the last element equals
+ *  finalDerivedValue's result). */
+function valuesAfterEquals(text: string): number[] {
+  const out: number[] = [];
+  let idx = 0;
+  while (true) {
+    const eq = text.indexOf("=", idx);
+    if (eq === -1) break;
+    const match = text.slice(eq + 1).match(/-?\d[\d.,/]*/);
+    if (match) {
+      const v = parseNumericValue(match[0]);
+      if (v !== null) out.push(v);
+    }
+    idx = eq + 1;
+  }
+  return out;
+}
+
+/** Every clock time in the text, in order (same per-match "+24h" rule as
+ *  clockTimeMinutes). */
+function allClockTimes(text: string): number[] {
+  const out: number[] = [];
+  for (const m of text.matchAll(/(\d{1,2})[.:](\d{2})/g)) {
+    const minutes = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    const after = text.slice(
+      (m.index ?? 0) + m[0].length,
+      (m.index ?? 0) + m[0].length + 40,
+    );
+    out.push(minutes + (/hari berikut|keesokan/i.test(after) ? 24 * 60 : 0));
+  }
+  return out;
+}
+
 /**
  * The explanation invents a value for an unknown ("misal r_bola = 3 cm").
  * Distinct from the legitimate "Misalkan X adalah ..." (defining a
@@ -294,28 +442,48 @@ export function validateQuestion(q: Question): ValidationResult {
   // explanation must state its final answer as a clock time. A bare duration
   // ("1200 menit") is the wrong quantity for a "when" question: it does not
   // confirm a time-of-day key, so it is a defect, not a confirmation.
+  // The final value is read from the CONCLUSION segment, not the whole
+  // explanation: a trailing verification sentence ("Periksa: … = 93") or a
+  // trap note ("(… adalah jebakan … = Rp300.000,00)") must not override
+  // the answer the explanation actually concludes with (mat-14, mat-6).
+  const segment = conclusionSegment(q.explanation);
   if (isClockTimeKey(q.options[q.answerIndex])) {
-    const derivedTime = finalClockTime(q.explanation);
+    const derivedTime = finalClockTime(segment);
     if (derivedTime !== null) {
       if (!numbersEqual(derivedTime, keyValue)) {
+        if (allClockTimes(segment).some((t) => numbersEqual(t, keyValue))) {
+          return { verdict: "INCONCLUSIVE", reasons: ["ambiguous-conclusion"] };
+        }
         return { verdict: "INVALID", reasons: ["key-explanation-mismatch"] };
       }
       return { verdict: "VALID", reasons: ["final-value-matches"] };
     }
-    const eqIndex = q.explanation.lastIndexOf("=");
+    const eqIndex = segment.lastIndexOf("=");
     if (eqIndex !== -1) {
-      const afterEq = q.explanation.slice(eqIndex + 1);
+      const afterEq = segment.slice(eqIndex + 1);
       if (/\d[\d.,/]*\s*(menit|jam)\b/i.test(afterEq)) {
         return { verdict: "INVALID", reasons: ["time-quantity-mismatch"] };
       }
     }
     return { verdict: "INCONCLUSIVE", reasons: ["numeric-unverifiable"] };
   }
-  const derived = finalDerivedValue(q.explanation);
+  const derived = finalDerivedValue(segment);
   if (derived === null) {
     return { verdict: "INCONCLUSIVE", reasons: ["numeric-unverifiable"] };
   }
   if (!numbersEqual(derived, keyValue)) {
+    // The key matches an earlier "=" value in the conclusion but not the
+    // last one: the conclusion states two different values and we cannot
+    // tell which is the answer — INCONCLUSIVE, never a guess, and never a
+    // rescue by searching the rest of the explanation (a wrong final
+    // answer stays INVALID).
+    if (
+      valuesAfterEquals(segment)
+        .slice(0, -1)
+        .some((v) => numbersEqual(v, keyValue))
+    ) {
+      return { verdict: "INCONCLUSIVE", reasons: ["ambiguous-conclusion"] };
+    }
     // The explanation's own derivation contradicts the key. This was the
     // dominant failure mode in the lite evaluation (4 of 8 bad questions).
     return { verdict: "INVALID", reasons: ["key-explanation-mismatch"] };

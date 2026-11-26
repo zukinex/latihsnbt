@@ -6,6 +6,7 @@
 // (Q1 substitution slip, Q6 underdetermined question). The 2 good ones
 // (Q3, Q10) must be VALID.
 import { describe, expect, it } from "vitest";
+import { sampleQuestionsFor } from "./sample-questions";
 import { parseNumericValue, validateQuestion, validateQuestionSet } from "./validation";
 import type { Question } from "./types";
 
@@ -414,9 +415,10 @@ describe("validateQuestion — clock-time answers (audit finding 1b)", () => {
 
 describe("validateQuestion — VALID means only the final value matches (audit finding 1a)", () => {
   // These cases are VALID by design of the deterministic validator: only the
-  // final value after the last "=" is compared with the key. They document
-  // the known limit — a VALID verdict does NOT prove the steps or the method
-  // are correct. Catching these is the job of the postponed Fase 2 AI validator.
+  // final value after the last "=" in the conclusion segment is compared
+  // with the key. They document the known limit — a VALID verdict does NOT
+  // prove the steps or the method are correct. Catching these is the job of
+  // the postponed Fase 2 AI validator.
   it("P1: wrong intermediate steps, final line restates the key", () => {
     const q = makeQuestion({
       id: "test-limit-p1",
@@ -480,5 +482,195 @@ describe("validateQuestionSet", () => {
 
   it("returns an empty partition for an empty input", () => {
     expect(validateQuestionSet([])).toEqual({ valid: [], invalid: [], inconclusive: [] });
+  });
+});
+
+describe("validateQuestion — conclusion-segment scoping (live-test finding, 2026-11-26)", () => {
+  // The validator used to read the value after the LAST "=" in the WHOLE
+  // explanation. Two audited seed questions were false-INVALID because a
+  // trailing verification sentence / trap note holds the last "=":
+  // contoh-mat-14 (verification sum 93 vs answer 3) and contoh-mat-6
+  // (trap note Rp300.000 vs answer Rp5.306.040). The final value is now
+  // read from the conclusion segment instead. Implemented on the user's
+  // direct instruction ("coba kamu selesaikan") without waiting for GPT's
+  // design approval; the design itself was proposed to GPT first.
+  const seed = (id: string): Question => {
+    const q = sampleQuestionsFor("matematika").find((s) => s.id === id);
+    if (!q) throw new Error(`seed question ${id} not found`);
+    return q;
+  };
+
+  it("contoh-mat-14 verbatim is VALID (verification sum ignored)", () => {
+    const result = validateQuestion(seed("contoh-mat-14"));
+    expect(result.verdict).toBe("VALID");
+    expect(result.reasons[0]).toBe("final-value-matches");
+  });
+
+  it("contoh-mat-6 verbatim is VALID (trap note ignored)", () => {
+    const result = validateQuestion(seed("contoh-mat-6"));
+    expect(result.verdict).toBe("VALID");
+    expect(result.reasons[0]).toBe("final-value-matches");
+  });
+
+  it("correct answer followed by a verification with a different number is VALID", () => {
+    const q = makeQuestion({
+      id: "test-conc-verify",
+      subtopic: "Barisan dan deret",
+      text: "Jumlah 3 suku pertama suatu deret geometri adalah 21. Jika rasio deret tersebut 2, berapa suku pertama deret tersebut?",
+      options: ["2", "3", "4", "5", "6"],
+      answerIndex: 1,
+      explanation: "Jadi suku pertama = 3. Periksa: 3 + 6 + 12 = 21.",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("VALID");
+    expect(result.reasons[0]).toBe("final-value-matches");
+  });
+
+  it("correct answer followed by a trap note is VALID", () => {
+    const q = makeQuestion({
+      id: "test-conc-trap",
+      subtopic: "Fungsi dan pertumbuhan",
+      text: "Harga sebuah barang Rp10.000,00. Berapa yang harus dibayar?",
+      options: ["Rp8.000,00", "Rp9.000,00", "Rp10.000,00", "Rp11.000,00"],
+      answerIndex: 2,
+      explanation:
+        "Jadi total = Rp10.000,00. (Rp9.000,00 adalah jebakan: harga Rp10.000,00 dikurangi Rp1.000,00 = Rp9.000,00.)",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("VALID");
+    expect(result.reasons[0]).toBe("final-value-matches");
+  });
+
+  it("wrong final answer stays INVALID even when the key number appears earlier", () => {
+    const q = makeQuestion({
+      id: "test-conc-wrong-final",
+      subtopic: "Barisan dan deret",
+      text: "Berapakah hasil dari 2 + 3?",
+      options: ["4", "5", "6", "7"],
+      answerIndex: 1,
+      explanation: "Hitung 2 + 3 = 5. Jadi total = 6.",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("INVALID");
+    expect(result.reasons[0]).toBe("key-explanation-mismatch");
+  });
+
+  it("no conclusion marker with a contradicting key stays INVALID (fallback)", () => {
+    const q = makeQuestion({
+      id: "test-conc-nomarker",
+      subtopic: "Optimasi",
+      text: "Luas persegi dengan panjang sisi 5 cm adalah berapa?",
+      options: ["20", "25", "30", "10"],
+      answerIndex: 1,
+      explanation: "Luas = panjang × lebar = 20.",
+    });
+    // The key (25) contradicts the derived value (20); without a marker
+    // the whole explanation is used, exactly as before this change.
+    expect(validateQuestion(q).verdict).toBe("INVALID");
+  });
+
+  it("no conclusion marker with a matching final value stays VALID (fallback)", () => {
+    const q = makeQuestion({
+      id: "test-conc-nomarker-valid",
+      subtopic: "Optimasi",
+      text: "Luas persegi dengan panjang sisi 5 cm adalah berapa?",
+      options: ["20", "25", "30", "10"],
+      answerIndex: 1,
+      explanation: "Luas = panjang × lebar = 5 × 5 = 25.",
+    });
+    expect(validateQuestion(q).verdict).toBe("VALID");
+  });
+
+  it("no marker plus a trailing verification is INCONCLUSIVE (ambiguous, held — not delivered)", () => {
+    const q = makeQuestion({
+      id: "test-conc-nomarker-verify",
+      subtopic: "Barisan dan deret",
+      text: "Berapakah suku pertama deret geometri dengan jumlah 3 suku pertama 21 dan rasio 2?",
+      options: ["3", "6", "9", "12"],
+      answerIndex: 0,
+      explanation: "a = 3. Periksa: 3 + 6 = 9.",
+    });
+    // Without a conclusion marker the whole explanation is used, so the
+    // key (3) matches an earlier "=" value while the last one is 9. The
+    // ambiguous-conclusion rule holds the question as INCONCLUSIVE instead
+    // of falsely rejecting it as INVALID — either way it is never
+    // delivered. Residual of the fallback, documented.
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("INCONCLUSIVE");
+    expect(result.reasons[0]).toBe("ambiguous-conclusion");
+  });
+
+  it("a conclusion stating two values where the key matches the earlier one is INCONCLUSIVE", () => {
+    const q = makeQuestion({
+      id: "test-conc-ambiguous",
+      subtopic: "Barisan dan deret",
+      text: "Diketahui a = 3 dan total = 5. Berapakah nilai a?",
+      options: ["3", "5", "8", "15"],
+      answerIndex: 0,
+      explanation: "Jadi a = 3, dan total = 5.",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("INCONCLUSIVE");
+    expect(result.reasons[0]).toBe("ambiguous-conclusion");
+  });
+
+  it("a clock-time conclusion ignores a trailing different time in parentheses", () => {
+    const q = makeQuestion({
+      id: "test-conc-clock",
+      subtopic: "Fungsi dan pertumbuhan",
+      text: "Sebuah kereta berangkat pukul 08.00 dan tiba 12 jam kemudian. Pukul berapa kereta tiba?",
+      options: ["Pukul 17.00", "Pukul 20.00", "Pukul 23.00", "Pukul 02.00 hari berikutnya"],
+      answerIndex: 1,
+      explanation: "Hitung: 08.00 + 12 jam = 20.00. Jadi tiba pukul 20.00. (Berangkat pukul 08.00.)",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("VALID");
+    expect(result.reasons[0]).toBe("final-value-matches");
+  });
+
+  it("a trailing marker without '=' is skipped ('Jadi benar.')", () => {
+    const q = makeQuestion({
+      id: "test-conc-trailing-marker",
+      subtopic: "Barisan dan deret",
+      text: "Jumlah 5 suku pertama suatu deret geometri adalah 93. Jika rasio deret tersebut 2, berapa suku pertama deret tersebut?",
+      options: ["2", "3", "4", "5", "6"],
+      answerIndex: 1,
+      explanation: "Suku pertama dicari dari S_5 = a × 31 = 93, sehingga a = 93 ÷ 31 = 3. Jadi benar.",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("VALID");
+    expect(result.reasons[0]).toBe("final-value-matches");
+  });
+
+  it("a clock conclusion stating two times where the key matches the earlier one is INCONCLUSIVE", () => {
+    const q = makeQuestion({
+      id: "test-conc-clock-ambiguous",
+      subtopic: "Fungsi dan pertumbuhan",
+      text: "Sebuah kereta berangkat pukul 08.00 dan tiba pukul 20.00. Pukul berapa kereta berangkat?",
+      options: ["Pukul 08.00", "Pukul 20.00", "Pukul 23.00", "Pukul 02.00 hari berikutnya"],
+      answerIndex: 0,
+      explanation: "Jadi berangkat pukul 08.00, tiba pukul 20.00.",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("INCONCLUSIVE");
+    expect(result.reasons[0]).toBe("ambiguous-conclusion");
+  });
+
+  it("a key matching an intermediate chain value (not the last) is INCONCLUSIVE, not INVALID", () => {
+    // Documented trade-off: "a = 93 ÷ 31 = 3" with key 93 is genuinely
+    // wrong, but the validator cannot tell a chain intermediate from a
+    // competing answer — so it refuses to judge instead of guessing. The
+    // question is never delivered either way.
+    const q = makeQuestion({
+      id: "test-conc-chain-intermediate",
+      subtopic: "Barisan dan deret",
+      text: "Jumlah 5 suku pertama suatu deret geometri adalah 93. Jika rasio deret tersebut 2, berapa suku pertama deret tersebut?",
+      options: ["3", "93", "31", "1"],
+      answerIndex: 1,
+      explanation: "Jumlah 5 suku pertama deret geometri adalah 93. Jadi a = 93 ÷ 31 = 3.",
+    });
+    const result = validateQuestion(q);
+    expect(result.verdict).toBe("INCONCLUSIVE");
+    expect(result.reasons[0]).toBe("ambiguous-conclusion");
   });
 });

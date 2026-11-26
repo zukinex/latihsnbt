@@ -91,7 +91,14 @@ export const AI_TIMEOUT_MESSAGE =
 /** Bounded retry policy for AI calls (approved 2026-11-26). */
 export const AI_CALL_MAX_ATTEMPTS = 3;
 export const AI_CALL_BACKOFFS_MS = [2000, 4000];
-export const AI_CALL_TIMEOUT_MS = 30_000;
+/** Per-attempt timeout for one AI call. Raised 30s → 60s on 2026-11-26:
+ *  the controlled live test showed gemini-3.8-flash cannot answer even 3
+ *  questions within 30s (timeout at exactly 30.008s, wall 37.3s), while
+ *  lite answered 3 questions in ~6s — so 30s is below the model's real
+ *  latency in this setup, not a batch-size problem. One 60s experiment
+ *  decides whether the model just needs longer; the 90s batch budget
+ *  still caps the whole generateQuestions call. */
+export const AI_CALL_TIMEOUT_MS = 60_000;
 
 /**
  * Soft batch budget for one generateQuestions call (approved 2026-11-26):
