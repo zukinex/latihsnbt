@@ -3,12 +3,17 @@
 "use client";
 
 import { useState } from "react";
+import {
+  inferenceSourceLabel,
+  sessionInferenceSource,
+  sessionSourceInfo,
+  verifiedTagText,
+} from "../lib/logic";
 import { isReported, reportQuestion } from "../lib/storage";
 import {
   AnsweredQuestion,
   DrillPlan,
   InferenceSource,
-  QuestionSource,
   SUBTESTS,
   SubtestId,
   WeaknessEntry,
@@ -27,7 +32,6 @@ interface ResultsScreenProps {
   weakness: WeaknessEntry[];
   plan: DrillPlan | null;
   planLoading: boolean;
-  source: QuestionSource;
   inferenceSource: InferenceSource;
   onRetest: () => void;
   onDrillSubtopic: (subtopic: string) => void;
@@ -68,12 +72,20 @@ export default function ResultsScreen({
   weakness,
   plan,
   planLoading,
-  source,
   inferenceSource,
   onRetest,
   onDrillSubtopic,
   onHome,
 }: ResultsScreenProps) {
+  // Source label + provenance from the questions actually served (a seed
+  // question never shows as "Dibuat AI"). Same helper as QuizScreen: the
+  // inference source is shown only when the session actually contains
+  // AI-generated questions.
+  const sourceInfo = sessionSourceInfo(answered.map((a) => a.question));
+  const shownInference = sessionInferenceSource(
+    answered.map((a) => a.question),
+    inferenceSource,
+  );
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="rounded-xl border bg-white p-6 text-center shadow-sm">
@@ -82,11 +94,9 @@ export default function ResultsScreen({
         </p>
         <p className="mt-2 text-5xl font-extrabold text-emerald-700">{score}</p>
         <p className="mt-1 text-sm text-gray-700">
-          {correct} benar dari {total} soal
-          {source === "contoh" ? " · Soal contoh" : ""}
-          {source === "ai" && inferenceSource
-            ? ` · Dibuat AI (${inferenceSource === "ON_DEVICE" ? "on-device" : "cloud"})`
-            : ""}
+          {correct} benar dari {total} soal · {sourceInfo.label}
+          {shownInference ? ` (${inferenceSourceLabel(shownInference)})` : ""}
+          {` · ${sourceInfo.provenance}`}
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <button
@@ -165,11 +175,14 @@ export default function ResultsScreen({
       <section className="mt-6 rounded-xl border bg-white p-5 shadow-sm">
         <h2 className="text-base font-bold text-gray-900">Pembahasan per soal</h2>
         <ol className="mt-4 space-y-5">
-          {answered.map((a, i) => (
+          {answered.map((a, i) => {
+            const tag = verifiedTagText(a.question);
+            return (
             <li key={a.question.id} className="border-b border-gray-100 pb-4 last:border-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
                 Soal {i + 1} · {a.question.subtopic}
                 {a.question.source === "contoh" ? " · Soal contoh" : ""}
+                {tag ? ` · ${tag}` : ""}
               </p>
               <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-900">
                 {a.question.text}
@@ -199,7 +212,8 @@ export default function ResultsScreen({
                 <ReportButton q={a.question} />
               </div>
             </li>
-          ))}
+            );
+          })}
         </ol>
       </section>
     </div>

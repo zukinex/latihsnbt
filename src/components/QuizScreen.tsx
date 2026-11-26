@@ -3,12 +3,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { formatDuration, remainingSeconds } from "../lib/logic";
+import {
+  formatDuration,
+  inferenceSourceLabel,
+  remainingSeconds,
+  sessionInferenceSource,
+  sessionSourceInfo,
+  verifiedTagText,
+} from "../lib/logic";
 import { isReported, reportQuestion } from "../lib/storage";
 import {
   InferenceSource,
   Question,
-  QuestionSource,
   SUBTESTS,
   SubtestId,
   type SessionMode,
@@ -20,7 +26,6 @@ interface QuizScreenProps {
   subtest: SubtestId;
   mode: SessionMode;
   questions: Question[];
-  source: QuestionSource;
   inferenceSource: InferenceSource;
   /** Epoch ms when the Tryout timer ends; null for Drill (no timer). */
   deadlineMs: number | null;
@@ -32,7 +37,6 @@ export default function QuizScreen({
   subtest,
   mode,
   questions,
-  source,
   inferenceSource,
   deadlineMs,
   onFinish,
@@ -47,6 +51,14 @@ export default function QuizScreen({
 
   const total = questions.length;
   const current = questions[index];
+  // Source label + provenance from the questions actually served (a seed
+  // question never shows as "Dibuat AI"). The inference source is shown
+  // only when the session actually contains AI-generated questions — a
+  // seed-only session never shows "cloud"/"on-device", even if an AI call
+  // ran earlier in the flow.
+  const sourceInfo = sessionSourceInfo(questions);
+  const shownInference = sessionInferenceSource(questions, inferenceSource);
+  const currentTag = verifiedTagText(current);
   const timeLeft = deadlineMs === null ? null : remainingSeconds(deadlineMs, nowMs);
 
   // Countdown ticker (Tryout only).
@@ -112,15 +124,17 @@ export default function QuizScreen({
         <span>
           Soal {index + 1} dari {total} · {answeredCount} terjawab
         </span>
-        {source === "contoh" ? (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800">
-            Soal contoh
-          </span>
-        ) : (
-          <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-semibold text-emerald-800">
-            Dibuat AI{inferenceSource ? ` · ${inferenceSource === "ON_DEVICE" ? "on-device" : "cloud"}` : ""}
-          </span>
-        )}
+        <span
+          className={`rounded-full px-2 py-0.5 font-semibold ${
+            sourceInfo.label === "Soal contoh"
+              ? "bg-amber-100 text-amber-800"
+              : "bg-emerald-100 text-emerald-800"
+          }`}
+        >
+          {sourceInfo.label}
+          {shownInference ? ` · ${inferenceSourceLabel(shownInference)}` : ""}
+          {` · ${sourceInfo.provenance}`}
+        </span>
       </div>
       <div className="mb-6 h-2 overflow-hidden rounded-full bg-gray-200">
         <div
@@ -132,6 +146,11 @@ export default function QuizScreen({
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
           {current.subtopic}
+          {currentTag && (
+            <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 normal-case text-emerald-800">
+              {currentTag}
+            </span>
+          )}
         </p>
         <p className="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-900">
           {current.text}

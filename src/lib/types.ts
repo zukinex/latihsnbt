@@ -19,8 +19,11 @@ export type SessionMode = "drill" | "tryout";
 export type QuestionSource = "ai" | "contoh";
 
 /** Which inference path actually served a generation (Firebase AI Logic
- *  `response.inferenceSource`). */
-export type InferenceSource = "ON_DEVICE" | "IN_CLOUD" | null;
+ *  `response.inferenceSource`). "MIXED" means the session's two generation
+ *  batches came from different sources (one on-device, one cloud) — the
+ *  session must never be labelled as if every question came from one
+ *  source (see combineInferenceSources in ai.ts). */
+export type InferenceSource = "ON_DEVICE" | "IN_CLOUD" | "MIXED" | null;
 
 export interface Question {
   id: string;
@@ -35,6 +38,20 @@ export interface Question {
   /** Written explanation shown on the results screen (pembahasan). */
   explanation: string;
   source: QuestionSource;
+  /**
+   * Set by the Verified Question Bank when serving: this question passed a
+   * verification gate (hand audit of the sample bank, or the deterministic
+   * validator for AI questions). Absent on unvalidated questions.
+   */
+  verified?: boolean;
+  /**
+   * Which gate verified this question: "audit" for the hand-audited sample
+   * seed, "validator" for AI questions that passed the deterministic
+   * validator. Kept alongside `verified` so the UI can tell the two apart
+   * ("Diaudit manusia" vs "Lolos validasi otomatis") instead of one shared
+   * "terverifikasi" label. Absent when `verified` is absent.
+   */
+  verifiedBy?: "audit" | "validator";
 }
 
 export interface SubtestInfo {
@@ -44,6 +61,13 @@ export interface SubtestInfo {
   description: string;
   /** Subtopics the AI is asked to cover (also the weakness-map axes). */
   subtopics: string[];
+  /**
+   * True when this subtest's questions have numeric keys, so AI-generated
+   * questions can pass the deterministic validator. False for
+   * reading/reasoning subtests: their questions are served from the Verified
+   * Bank instead of burning AI calls that can never return VALID.
+   */
+  numericQuestions: boolean;
   /** How many hand-written sample questions exist for this subtest
    *  (15 for the two original subtests, 14 for the five added later).
    *  A sample-mode Tryout serves at most this many questions. */
@@ -58,6 +82,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Penalaran kuantitatif level SMA: fungsi dan pertumbuhan, peluang, optimasi, barisan dan deret, statistika.",
     subtopics: ["Fungsi dan pertumbuhan", "Peluang", "Optimasi", "Barisan dan deret", "Statistika"],
+    numericQuestions: true,
     bankSize: 15,
   },
   literasi: {
@@ -67,6 +92,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Memahami bacaan level SNBT: simpulan, sikap penulis, evaluasi argumen, struktur teks, dan inferensi.",
     subtopics: ["Simpulan", "Sikap penulis", "Evaluasi argumen", "Struktur teks", "Inferensi"],
+    numericQuestions: false,
     bankSize: 15,
   },
   "penalaran-umum": {
@@ -76,6 +102,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Penalaran induktif, deduktif, dan kuantitatif level SNBT: pola bilangan dan huruf, analogi, silogisme, dan penalaran angka.",
     subtopics: ["Induktif", "Deduktif", "Kuantitatif"],
+    numericQuestions: true,
     bankSize: 14,
   },
   "pengetahuan-umum": {
@@ -85,6 +112,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Leksikal, informasi umum, dan pengetahuan umum: makna kata dalam konteks, fakta, dan wawasan umum.",
     subtopics: ["Leksikal", "Informasi umum", "Pengetahuan umum"],
+    numericQuestions: false,
     bankSize: 14,
   },
   "bacaan-menulis": {
@@ -94,6 +122,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Memilih, menata, dan memperbaiki gagasan dalam teks: gagasan utama, urutan kalimat yang logis, dan kalimat efektif.",
     subtopics: ["Pemilihan gagasan", "Penataan gagasan", "Perbaikan gagasan"],
+    numericQuestions: false,
     bankSize: 14,
   },
   "pengetahuan-kuantitatif": {
@@ -103,6 +132,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Matematika dasar level SNBT: bilangan, aljabar, geometri dan pengukuran, data dan peluang.",
     subtopics: ["Bilangan", "Aljabar", "Geometri dan pengukuran", "Data dan peluang"],
+    numericQuestions: true,
     bankSize: 14,
   },
   "literasi-inggris": {
@@ -112,6 +142,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
     description:
       "Reading comprehension in English: main idea, inference, vocabulary in context, and author's purpose.",
     subtopics: ["Main idea", "Inference", "Vocabulary in context", "Author's purpose"],
+    numericQuestions: false,
     bankSize: 14,
   },
 };

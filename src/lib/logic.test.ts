@@ -5,11 +5,15 @@ import {
   buildDrillPlanFallback,
   computeWeaknessMap,
   formatDuration,
+  inferenceSourceLabel,
   parseGeneratedQuestions,
   parseGeneratedQuestionsText,
   remainingSeconds,
   scoreSession,
+  sessionInferenceSource,
+  sessionSourceInfo,
   shuffle,
+  verifiedTagText,
 } from "./logic";
 import type { AnsweredQuestion, Question } from "./types";
 
@@ -201,5 +205,158 @@ describe("parseGeneratedQuestionsText", () => {
   it("rejects invalid JSON and wrong shapes", () => {
     expect(parseGeneratedQuestionsText("bukan json sama sekali", "matematika", "ai", "ai-x")).toBeNull();
     expect(parseGeneratedQuestionsText('{"foo": 1}', "matematika", "ai", "ai-x")).toBeNull();
+  });
+});
+
+describe("sessionSourceInfo (P0-3/P0-4)", () => {
+  function seedQ(id: string): Question {
+    return { ...q("Statistika", id), source: "contoh", verified: true, verifiedBy: "audit" };
+  }
+  function aiQ(id: string): Question {
+    return {
+      ...q("Statistika", id),
+      source: "ai",
+      verified: true,
+      verifiedBy: "validator",
+    };
+  }
+
+  it("labels an all-seed session 'Soal contoh' with 'diaudit manusia' provenance", () => {
+    expect(sessionSourceInfo([seedQ("s1"), seedQ("s2")])).toEqual({
+      label: "Soal contoh",
+      provenance: "diaudit manusia",
+    });
+  });
+
+  it("labels an all-AI session 'Dibuat AI' with 'lolos validasi otomatis' provenance", () => {
+    expect(sessionSourceInfo([aiQ("a1"), aiQ("a2")])).toEqual({
+      label: "Dibuat AI",
+      provenance: "lolos validasi otomatis",
+    });
+  });
+
+  it("labels a mixed session explicitly and never calls a seed question AI-made", () => {
+    const info = sessionSourceInfo([seedQ("s1"), aiQ("a1")]);
+    expect(info.label).toBe("Dibuat AI + soal contoh");
+    expect(info.provenance).toBe("terverifikasi");
+  });
+
+  it("does not claim human audit for an unverified AI question", () => {
+    const info = sessionSourceInfo([{ ...aiQ("a1"), verified: false, verifiedBy: undefined }]);
+    expect(info.provenance).not.toBe("diaudit manusia");
+  });
+});
+
+describe("verifiedTagText (P0-4)", () => {
+  it("returns 'Diaudit manusia' for an audited seed question", () => {
+    const seed: Question = {
+      ...q("Statistika", "s1"),
+      source: "contoh",
+      verified: true,
+      verifiedBy: "audit",
+    };
+    expect(verifiedTagText(seed)).toBe("✓ Diaudit manusia");
+  });
+
+  it("returns 'Lolos validasi otomatis' for a validator-passed AI question", () => {
+    const ai: Question = {
+      ...q("Statistika", "a1"),
+      source: "ai",
+      verified: true,
+      verifiedBy: "validator",
+    };
+    expect(verifiedTagText(ai)).toBe("✓ Lolos validasi otomatis");
+  });
+
+  it("falls back to the generic tag for a verified question without provenance", () => {
+    const legacy: Question = { ...q("Statistika", "l1"), source: "ai", verified: true };
+    expect(verifiedTagText(legacy)).toBe("✓ Terverifikasi");
+  });
+
+  it("returns null for an unverified question (no tag shown)", () => {
+    expect(verifiedTagText({ ...q("Statistika", "u1"), verified: false })).toBeNull();
+  });
+});
+
+describe("sessionSourceInfo — unaudited seed provenance (P0-2, GPT round 2)", () => {
+  function seedAudited(id: string): Question {
+    return { ...q("Statistika", id), source: "contoh", verified: true, verifiedBy: "audit" };
+  }
+  function seedUnaudited(id: string): Question {
+    // A sample question whose ID is not in VERIFIED_SAMPLE_IDS: served
+    // without the verified badge (see sampleSet).
+    return { ...q("Statistika", id), source: "contoh", verified: false };
+  }
+  function aiValidated(id: string): Question {
+    return { ...q("Statistika", id), source: "ai", verified: true, verifiedBy: "validator" };
+  }
+
+  it("labels an all-audited seed session 'diaudit manusia'", () => {
+    expect(sessionSourceInfo([seedAudited("s1"), seedAudited("s2")])).toEqual({
+      label: "Soal contoh",
+      provenance: "diaudit manusia",
+    });
+  });
+
+  it("does NOT claim full verification when one seed question is unaudited", () => {
+    const info = sessionSourceInfo([seedAudited("s1"), seedUnaudited("s2")]);
+    expect(info.label).toBe("Soal contoh");
+    expect(info.provenance).toBe("sebagian terverifikasi");
+    expect(info.provenance).not.toBe("terverifikasi");
+    expect(info.provenance).not.toBe("diaudit manusia");
+  });
+
+  it("labels a fully unaudited seed session 'sebagian terverifikasi'", () => {
+    const info = sessionSourceInfo([seedUnaudited("s1"), seedUnaudited("s2")]);
+    expect(info.label).toBe("Soal contoh");
+    expect(info.provenance).toBe("sebagian terverifikasi");
+  });
+
+  it("keeps AI-validator questions distinct from audited seed in a mixed session", () => {
+    const seed = seedAudited("s1");
+    const ai = aiValidated("a1");
+    const info = sessionSourceInfo([seed, ai]);
+    expect(info.label).toBe("Dibuat AI + soal contoh");
+    expect(info.provenance).toBe("terverifikasi");
+    // The per-question tags carry the distinction the session label cannot.
+    expect(verifiedTagText(seed)).toBe("✓ Diaudit manusia");
+    expect(verifiedTagText(ai)).toBe("✓ Lolos validasi otomatis");
+  });
+});
+
+describe("sessionInferenceSource (P0-1, GPT round 2)", () => {
+  function seedQ(id: string): Question {
+    return { ...q("Statistika", id), source: "contoh", verified: true, verifiedBy: "audit" };
+  }
+  function aiQ(id: string): Question {
+    return { ...q("Statistika", id), source: "ai", verified: true, verifiedBy: "validator" };
+  }
+
+  it("hides the inference source for a 100% seed session, even when a source is set", () => {
+    expect(sessionInferenceSource([seedQ("s1"), seedQ("s2")], "IN_CLOUD")).toBeNull();
+    expect(sessionInferenceSource([seedQ("s1")], "ON_DEVICE")).toBeNull();
+    expect(sessionInferenceSource([seedQ("s1")], "MIXED")).toBeNull();
+  });
+
+  it("shows the inference source for a mixed seed+AI session, honestly", () => {
+    expect(sessionInferenceSource([seedQ("s1"), aiQ("a1")], "IN_CLOUD")).toBe("IN_CLOUD");
+    expect(sessionInferenceSource([seedQ("s1"), aiQ("a1")], "MIXED")).toBe("MIXED");
+  });
+
+  it("shows the inference source for an all-AI session", () => {
+    expect(sessionInferenceSource([aiQ("a1"), aiQ("a2")], "ON_DEVICE")).toBe("ON_DEVICE");
+  });
+
+  it("returns null when there is no inference source at all", () => {
+    expect(sessionInferenceSource([aiQ("a1")], null)).toBeNull();
+    expect(sessionInferenceSource([seedQ("s1")], null)).toBeNull();
+  });
+});
+
+describe("inferenceSourceLabel (P1-3 display)", () => {
+  it("labels ON_DEVICE / IN_CLOUD / MIXED in Indonesian UI terms", () => {
+    expect(inferenceSourceLabel("ON_DEVICE")).toBe("on-device");
+    expect(inferenceSourceLabel("IN_CLOUD")).toBe("cloud");
+    expect(inferenceSourceLabel("MIXED")).toBe("campuran");
   });
 });

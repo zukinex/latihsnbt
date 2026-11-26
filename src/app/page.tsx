@@ -8,6 +8,7 @@ import HomeScreen from "../components/HomeScreen";
 import QuizScreen from "../components/QuizScreen";
 import ResultsScreen from "../components/ResultsScreen";
 import { AiError, generateDrillPlan, generateQuestions, sampleSet } from "../lib/ai";
+import type { GeneratedSet, GenerationStage } from "../lib/ai";
 import { getFirebaseConfigStatus } from "../lib/firebase";
 import {
   buildDrillPlanFallback,
@@ -33,6 +34,13 @@ import {
 
 type Stage = "home" | "loading" | "quiz" | "results";
 
+/** Loading-stage text while the AI generates and validates questions. */
+const LOADING_STAGE_TEXT: Record<GenerationStage, string> = {
+  generating: "Membuat soal dengan AI…",
+  regenerating: "Memvalidasi soal, membuat ulang yang belum lolos…",
+  bank: "Melengkapi dari bank soal terverifikasi…",
+};
+
 export default function Home() {
   const [configured] = useState(() => getFirebaseConfigStatus().configured);
   const [stage, setStage] = useState<Stage>("home");
@@ -45,6 +53,15 @@ export default function Home() {
   const [source, setSource] = useState<QuestionSource>("contoh");
   const [inferenceSource, setInferenceSource] = useState<InferenceSource>(null);
   const [deadlineMs, setDeadlineMs] = useState<number | null>(null);
+  // AbortController for the in-flight generation (the loading Cancel
+  // button). Null in sample mode, where the set is instant.
+  const [loadingController, setLoadingController] = useState<AbortController | null>(null);
+
+  const cancelLoading = useCallback(() => {
+    loadingController?.abort();
+    setLoadingController(null);
+    setStage("home");
+  }, [loadingController]);
 
   const [answered, setAnswered] = useState<AnsweredQuestion[]>([]);
   const [result, setResult] = useState({ correct: 0, total: 0, score: 0 });
@@ -70,13 +87,15 @@ export default function Home() {
       setStage("loading");
       const count = m === "drill" ? DRILL_QUESTION_COUNT : TRYOUT_QUESTION_COUNT;
       // In sample mode a Tryout serves at most the subtest's bank size
-      // (14 for the five newer subtests); AI mode always generates 15.
+      // (14 for the five newer subtests). In AI mode the request is 15, but
+      // the served set can be 14 when the Verified Bank fills the shortfall
+      // for a subtest whose bank holds only 14 questions.
       const tryoutCount = configured ? TRYOUT_QUESTION_COUNT : SUBTESTS[st].bankSize;
       setLoadingMsg(
         m === "drill" ? "Membuat 5 soal drill…" : `Membuat ${tryoutCount} soal tryout…`,
       );
 
-      let set: { questions: Question[]; inferenceSource: InferenceSource };
+      let set: GeneratedSet;
       let src: QuestionSource;
       if (!configured) {
         // Sample mode: hand-written questions per subtest, shuffled.
@@ -86,14 +105,46 @@ export default function Home() {
           `Firebase belum dikonfigurasi — memakai soal contoh. Bank soal contoh berisi ${SUBTESTS[st].bankSize} soal untuk subtes ini.`,
         );
       } else {
+        const controller = new AbortController();
+        setLoadingController(controller);
         try {
-          set = await generateQuestions(st, count, m, focusSubtopics);
+          set = await generateQuestions(st, count, m, focusSubtopics, {
+            signal: controller.signal,
+            onProgress: (stage) => setLoadingMsg(LOADING_STAGE_TEXT[stage]),
+          });
           src = "ai";
+          // Honest notice when the bank filled part (or all) of the set.
+          if (set.bankOnly) {
+            // Non-numeric subtest: no AI generation was attempted at all —
+            // the set is the audited seed bank, and the badge says so.
+            setNotice("Soal untuk subtes ini diambil dari bank soal terverifikasi.");
+          } else if (set.fromBank && set.fromBank > 0) {
+            setNotice(
+              set.generationFailed
+                ? set.fromBank === set.questions.length
+                  ? "AI tidak dapat membuat soal saat ini — memakai soal terverifikasi dari bank."
+                  : "AI tidak dapat membuat semua soal — sebagian diganti dari bank soal terverifikasi."
+                : "Beberapa soal AI belum lolos validasi dan diganti dari bank soal terverifikasi.",
+            );
+          }
         } catch (e) {
-          set = sampleSet(st, count, focusSubtopics);
-          src = "contoh";
+          // Only reachable when the Verified Bank is empty too (the audited
+          // seed is static, so this is near-impossible). Show the safe
+          // failure message and stay on Home — never serve an unvalidated
+          // question, and never silently fall back to the raw sample set.
           const reason = e instanceof AiError ? e.message : "AI tidak dapat dihubungi.";
-          setNotice(`${reason} Memakai soal contoh (${SUBTESTS[st].bankSize} soal untuk subtes ini).`);
+          setNotice(reason);
+          setLoadingController(null);
+          setStage("home");
+          return;
+        }
+        setLoadingController(null);
+        // The student pressed Batalkan while loading: discard the set and
+        // stay on Home. (A budget expiry does NOT abort this signal, so a
+        // bank-filled set still reaches the quiz.)
+        if (controller.signal.aborted) {
+          setStage("home");
+          return;
         }
       }
       setQuestions(set.questions);
@@ -155,6 +206,14 @@ export default function Home() {
         <p className="mt-2 text-sm text-gray-500">
           Soal dibuat {configured ? "live oleh AI lewat Firebase AI Logic" : "dari bank soal contoh"}.
         </p>
+        {loadingController && (
+          <button
+            onClick={cancelLoading}
+            className="mt-6 rounded-lg border bg-white px-5 py-2 text-sm font-semibold text-gray-700 hover:border-red-400 hover:text-red-700"
+          >
+            Batalkan
+          </button>
+        )}
       </main>
     );
   }
@@ -173,11 +232,13 @@ export default function Home() {
           subtest={subtest}
           mode={mode}
           questions={questions}
-          source={source}
           inferenceSource={inferenceSource}
           deadlineMs={deadlineMs}
           onFinish={finishSession}
-          onCancel={() => setStage("home")}
+          onCancel={() => {
+            setNotice(null);
+            setStage("home");
+          }}
         />
       </main>
     );
@@ -203,11 +264,13 @@ export default function Home() {
           weakness={weakness}
           plan={plan}
           planLoading={planLoading}
-          source={source}
           inferenceSource={inferenceSource}
           onRetest={() => startSession(subtest, mode)}
           onDrillSubtopic={(topic) => startSession(subtest, "drill", [topic])}
-          onHome={() => setStage("home")}
+          onHome={() => {
+            setNotice(null);
+            setStage("home");
+          }}
         />
       </main>
     );
@@ -215,6 +278,13 @@ export default function Home() {
 
   return (
     <main>
+      {notice && (
+        <div className="mx-auto mt-4 max-w-3xl px-4">
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            {notice}
+          </div>
+        </div>
+      )}
       <HomeScreen
         configured={configured}
         bestScores={bestScores}

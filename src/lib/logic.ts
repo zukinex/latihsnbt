@@ -6,11 +6,35 @@ import {
   AnsweredQuestion,
   DRILL_QUESTION_COUNT,
   DrillPlan,
+  InferenceSource,
   Question,
   QuestionSource,
   SubtestId,
   WeaknessEntry,
 } from "./types";
+
+/** User-facing label for an inference source: "on-device" | "cloud" | "campuran". */
+export function inferenceSourceLabel(source: Exclude<InferenceSource, null>): string {
+  if (source === "ON_DEVICE") return "on-device";
+  if (source === "IN_CLOUD") return "cloud";
+  return "campuran";
+}
+
+/**
+ * The inference source to DISPLAY for a session: only when the session
+ * actually contains AI-generated questions. A seed-only session must never
+ * show "cloud" / "on-device" / "campuran" — even if an AI call ran earlier
+ * in the flow (e.g. generation produced nothing valid and the Verified
+ * Bank filled the whole set, leaving a stale per-batch source behind).
+ * Both screens (QuizScreen, ResultsScreen) use this one helper so the
+ * rule cannot drift between them.
+ */
+export function sessionInferenceSource(
+  questions: readonly Question[],
+  inferenceSource: InferenceSource,
+): InferenceSource {
+  return questions.some((q) => q.source === "ai") ? inferenceSource : null;
+}
 
 /** Score a finished session. `score` is 0-100, rounded. */
 export function scoreSession(answered: AnsweredQuestion[]): {
@@ -22,6 +46,58 @@ export function scoreSession(answered: AnsweredQuestion[]): {
   const correct = answered.filter((a) => a.correct).length;
   const score = total === 0 ? 0 : Math.round((correct / total) * 100);
   return { correct, total, score };
+}
+
+/**
+ * Session source label + provenance, derived from the questions actually
+ * served — never from a session-level flag. A session that is entirely
+ * hand-written seed questions is labelled "Soal contoh" (provenance
+ * "diaudit manusia"); an all-AI session is "Dibuat AI" ("lolos validasi
+ * otomatis"); a mixed session says so explicitly ("Dibuat AI + soal contoh").
+ * A seed question must never appear as "Dibuat AI".
+ *
+ * Provenance is about VERIFICATION, not source: "terverifikasi" is only
+ * honest when EVERY question in the session is verified. A seed question
+ * whose ID is not in VERIFIED_SAMPLE_IDS is served with `verified: false`
+ * and no `verifiedBy` (see sampleSet), so a seed session containing one
+ * must not claim the whole session is verified — its provenance is
+ * "sebagian terverifikasi". The per-question tag (verifiedTagText) always
+ * carries the finer distinction.
+ */
+export interface SessionSourceInfo {
+  /** "Soal contoh" | "Dibuat AI" | "Dibuat AI + soal contoh" */
+  label: string;
+  /** "diaudit manusia" | "lolos validasi otomatis" | "terverifikasi" | "sebagian terverifikasi" */
+  provenance: string;
+}
+
+export function sessionSourceInfo(questions: readonly Question[]): SessionSourceInfo {
+  if (questions.length === 0) return { label: "Dibuat AI + soal contoh", provenance: "terverifikasi" };
+  const allSeed = questions.every((q) => q.source === "contoh");
+  const allAi = questions.every((q) => q.source === "ai");
+  const allAudit = questions.every((q) => q.verifiedBy === "audit");
+  const allValidator = questions.every((q) => q.verifiedBy === "validator");
+  const allVerified = questions.every((q) => q.verified === true);
+  const label = allSeed ? "Soal contoh" : allAi ? "Dibuat AI" : "Dibuat AI + soal contoh";
+  let provenance: string;
+  if (allAudit) provenance = "diaudit manusia";
+  else if (allValidator) provenance = "lolos validasi otomatis";
+  else if (allVerified) provenance = "terverifikasi";
+  else provenance = "sebagian terverifikasi";
+  return { label, provenance };
+}
+
+/**
+ * Per-question verified tag text, from the question's own provenance:
+ * "Diaudit manusia" for the hand-audited seed, "Lolos validasi otomatis"
+ * for AI questions that passed the deterministic validator. Returns null
+ * when the question is not verified (no tag is shown).
+ */
+export function verifiedTagText(question: Question): string | null {
+  if (question.verifiedBy === "audit") return "✓ Diaudit manusia";
+  if (question.verifiedBy === "validator") return "✓ Lolos validasi otomatis";
+  if (question.verified === true) return "✓ Terverifikasi";
+  return null;
 }
 
 /**
