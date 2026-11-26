@@ -42,6 +42,7 @@ import {
   type GenerativeModel,
 } from "firebase/ai";
 import { getFirebaseApp } from "./firebase";
+import { t, type Language } from "./i18n";
 import { parseGeneratedQuestionsText, shuffle } from "./logic";
 import { sampleQuestionsFor } from "./sample-questions";
 import { validateQuestionSet } from "./validation";
@@ -80,6 +81,10 @@ export class AiTimeoutError extends Error {
 export const AI_OVERLOADED_MESSAGE =
   "AI Google sedang penuh, memakai soal contoh dulu — coba lagi nanti.";
 
+/** English version of AI_OVERLOADED_MESSAGE (UI language "en"). */
+export const AI_OVERLOADED_MESSAGE_EN =
+  "Google AI is busy right now, using sample questions for now — please try again later.";
+
 /**
  * User-facing message when an AI call never finishes in time. Deliberately
  * different from the overload message: a timeout must NOT claim Google is
@@ -87,6 +92,10 @@ export const AI_OVERLOADED_MESSAGE =
  */
 export const AI_TIMEOUT_MESSAGE =
   "AI tidak merespons tepat waktu, memakai soal contoh dulu — coba lagi nanti.";
+
+/** English version of AI_TIMEOUT_MESSAGE (UI language "en"). */
+export const AI_TIMEOUT_MESSAGE_EN =
+  "AI did not answer in time, using sample questions for now — please try again later.";
 
 /** Bounded retry policy for AI calls (approved 2026-11-26). */
 export const AI_CALL_MAX_ATTEMPTS = 3;
@@ -147,6 +156,8 @@ export interface AiCallOptions {
    * call fails with AiError — it is never retried.
    */
   signal?: AbortSignal;
+  /** UI language for user-facing error messages (default "id"). */
+  lang?: Language;
 }
 
 const defaultSleep = (ms: number) =>
@@ -177,12 +188,13 @@ export async function callAiWithRetry<T>(
   const maxAttempts = options.maxAttempts ?? AI_CALL_MAX_ATTEMPTS;
   const backoffs = options.backoffsMs ?? AI_CALL_BACKOFFS_MS;
   const timeoutMs = options.timeoutMs ?? AI_CALL_TIMEOUT_MS;
+  const lang = options.lang ?? "id";
   const sleep = options.sleep ?? defaultSleep;
   let lastError: unknown;
   for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++) {
     // The batch budget (or a student cancel) aborts the whole call.
     if (options.signal?.aborted) {
-      throw new AiError("Permintaan AI dibatalkan (batas waktu batch tercapai).");
+      throw new AiError(t(lang, "ai.batchAborted"));
     }
     const controller = new AbortController();
     const abortAttempt = () => controller.abort();
@@ -206,7 +218,7 @@ export async function callAiWithRetry<T>(
       // The outer signal (batch budget / cancel) aborts the whole call:
       // never retried, never relabelled as a timeout.
       if (options.signal?.aborted) {
-        throw new AiError("Permintaan AI dibatalkan (batas waktu batch tercapai).");
+        throw new AiError(t(lang, "ai.batchAborted"));
       }
       // A timeout is not an HTTP 500/503: it fails immediately, never retried.
       if (controller.signal.aborted || isTimeoutError(error)) {
@@ -239,10 +251,16 @@ function getAiService() {
  * says the service is full; a timeout says only that the AI did not answer
  * in time — it must not claim Google is full. Anything else keeps the
  * technical message (the caller shows it in the fallback notice).
+ * `lang` selects the message language (default "id").
  */
-export function aiFailureMessage(error: unknown): string {
-  if (error instanceof AiTimeoutError) return AI_TIMEOUT_MESSAGE;
-  if (isRetryableAiError(error)) return AI_OVERLOADED_MESSAGE;
+export function aiFailureMessage(error: unknown, lang: Language = "id"): string {
+  if (error instanceof AiTimeoutError)
+    return lang === "en" ? AI_TIMEOUT_MESSAGE_EN : AI_TIMEOUT_MESSAGE;
+  if (isRetryableAiError(error))
+    return lang === "en" ? AI_OVERLOADED_MESSAGE_EN : AI_OVERLOADED_MESSAGE;
+  if (lang === "en") {
+    return `Failed to call Firebase AI Logic: ${error instanceof Error ? error.message : "unknown error"}`;
+  }
   return `Gagal memanggil Firebase AI Logic: ${error instanceof Error ? error.message : "error tidak diketahui"}`;
 }
 
@@ -282,9 +300,10 @@ const drillPlanSchema = Schema.object({
 function buildQuestionModel(
   mode: SessionMode,
   inferenceModeOverride?: InferenceMode,
+  lang: Language = "id",
 ): GenerativeModel {
   const ai = getAiService();
-  if (!ai) throw new AiError("Firebase belum dikonfigurasi.");
+  if (!ai) throw new AiError(t(lang, "ai.notConfigured"));
   // Drill cepat: prefer on-device (Nano if available, cloud fallback).
   // Tryout: prefer cloud (longer, calibrated questions + analysis).
   // The override exists ONLY for the cloud-only live test (ONLY_IN_CLOUD,
@@ -429,10 +448,13 @@ export async function generateQuestions(
     onProgress?: (stage: GenerationStage) => void;
     /** External abort (the UI Cancel button). Aborts the batch like the budget does. */
     signal?: AbortSignal;
+    /** UI language for user-facing error messages (default "id"). */
+    lang?: Language;
   },
 ): Promise<GeneratedSet> {
   const info = SUBTESTS[subtest];
-  const model = buildQuestionModel(mode, options?.inferenceMode);
+  const lang = options?.lang ?? "id";
+  const model = buildQuestionModel(mode, options?.inferenceMode, lang);
   const topics = focusSubtopics && focusSubtopics.length > 0 ? focusSubtopics : info.subtopics;
   const report = (stage: GenerationStage) => options?.onProgress?.(stage);
 
@@ -443,9 +465,7 @@ export async function generateQuestions(
     report("bank");
     const bank = getVerifiedFor(subtest, count, new Set(), focusSubtopics);
     if (bank.length === 0) {
-      throw new AiError(
-        "AI tidak dapat membuat soal dan bank soal terverifikasi kosong. Coba lagi nanti.",
-      );
+      throw new AiError(t(lang, "ai.bankEmpty"));
     }
     return { questions: bank, inferenceSource: null, fromBank: bank.length, bankOnly: true };
   }
@@ -465,7 +485,7 @@ export async function generateQuestions(
     const result = await callAiWithRetry(
       (attemptSignal) =>
         model.generateContent(prompt, { timeout: AI_CALL_TIMEOUT_MS, signal: attemptSignal }),
-      { signal },
+      { signal, lang },
     );
     const parsed = parseGeneratedQuestionsText(
       result.response.text(),
@@ -474,7 +494,7 @@ export async function generateQuestions(
       `ai-${subtest}-${Date.now()}-${batchToken}-${idSuffix}`,
     );
     if (!parsed || parsed.length === 0) {
-      throw new AiError("Jawaban AI tidak sesuai format soal yang diharapkan.");
+      throw new AiError(t(lang, "ai.badFormat"));
     }
     return { questions: parsed, inferenceSource: readInferenceSource(result) };
   };
@@ -550,9 +570,7 @@ export async function generateQuestions(
     valid = [...valid, ...bank];
   }
   if (valid.length === 0) {
-    throw new AiError(
-      "AI tidak dapat membuat soal dan bank soal terverifikasi kosong. Coba lagi nanti.",
-    );
+    throw new AiError(t(lang, "ai.bankEmpty"));
   }
   // Persist freshly validated AI questions into the runtime bank (best
   // effort, capped at 200) so the bank grows with verified variety.
@@ -591,10 +609,15 @@ function isValidPlanJson(raw: unknown): raw is { days: unknown[] } {
  * Ask the cloud model to turn a weakness map into a 7-day drill plan.
  * Returns null on any failure — the caller uses the deterministic fallback
  * (buildDrillPlanFallback) and labels it honestly.
+ * `lang` is the language of the plan's focus/target sentences (default
+ * "id"). Subtopic names are ALWAYS written exactly as listed in the
+ * weakness map (Indonesian exam terms) — never translated — because the
+ * "Start drill" button matches on the exact subtopic string.
  */
 export async function generateDrillPlan(
   subtest: SubtestId,
   weakness: WeaknessEntry[],
+  lang: Language = "id",
 ): Promise<DrillPlan | null> {
   const ai = getAiService();
   if (!ai) return null;
@@ -618,7 +641,9 @@ export async function generateDrillPlan(
   const prompt = [
     `Seorang pelajar baru saja menyelesaikan tryout subtes "${SUBTESTS[subtest].name}" (SNBT).`,
     `Peta kelemahannya per subtopik:\n${weakLines}`,
-    `Buatkan rencana latihan 7 hari dalam Bahasa Indonesia: hari 1-6 fokus ke subtopik terlemah (satu subtopik per hari, boleh diulang), hari 7 adalah tryout ulang.`,
+    lang === "en"
+      ? `Build a 7-day drill plan in English: days 1-6 focus on the weakest subtopics (one subtopic per day, repeats allowed), day 7 is a full retest. Write each subtopic name EXACTLY as listed in the weakness map above (Indonesian exam terms — do NOT translate them).`
+      : `Buatkan rencana latihan 7 hari dalam Bahasa Indonesia: hari 1-6 fokus ke subtopik terlemah (satu subtopik per hari, boleh diulang), hari 7 adalah tryout ulang.`,
     `Setiap hari: nomor hari (1-7), subtopik, satu kalimat fokus latihan, dan satu target konkret (misal "Kerjakan 5 soal drill Aljabar").`,
     `Jawab HANYA dengan JSON sesuai skema: {"days": [{"day": 1, "subtopic": "...", "focus": "...", "target": "..."}]}.`,
   ].join(" ");

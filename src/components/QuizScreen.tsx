@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { t, type Language } from "../lib/i18n";
 import {
   formatDuration,
   inferenceSourceLabel,
@@ -23,6 +24,7 @@ import {
 const LETTERS = ["A", "B", "C", "D", "E"];
 
 interface QuizScreenProps {
+  lang: Language;
   subtest: SubtestId;
   mode: SessionMode;
   questions: Question[];
@@ -34,6 +36,7 @@ interface QuizScreenProps {
 }
 
 export default function QuizScreen({
+  lang,
   subtest,
   mode,
   questions,
@@ -56,9 +59,9 @@ export default function QuizScreen({
   // only when the session actually contains AI-generated questions — a
   // seed-only session never shows "cloud"/"on-device", even if an AI call
   // ran earlier in the flow.
-  const sourceInfo = sessionSourceInfo(questions);
+  const sourceInfo = sessionSourceInfo(questions, lang);
   const shownInference = sessionInferenceSource(questions, inferenceSource);
-  const currentTag = verifiedTagText(current);
+  const currentTag = verifiedTagText(current, lang);
   const timeLeft = deadlineMs === null ? null : remainingSeconds(deadlineMs, nowMs);
 
   // Countdown ticker (Tryout only).
@@ -102,10 +105,10 @@ export default function QuizScreen({
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-4 flex items-center justify-between gap-2 text-sm">
         <button onClick={onCancel} className="text-gray-500 underline hover:text-gray-700">
-          &larr; Beranda
+          {t(lang, "quiz.home")}
         </button>
         <span className="font-semibold text-gray-700">
-          {SUBTESTS[subtest].name} · {mode === "drill" ? "Drill Cepat" : "Tryout"}
+          {SUBTESTS[subtest].name} · {mode === "drill" ? t(lang, "quiz.modeDrill") : t(lang, "quiz.modeTryout")}
         </span>
         {timeLeft !== null ? (
           <span
@@ -116,23 +119,21 @@ export default function QuizScreen({
             {formatDuration(timeLeft)}
           </span>
         ) : (
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">Tanpa timer</span>
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">{t(lang, "quiz.noTimer")}</span>
         )}
       </div>
 
       <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
-        <span>
-          Soal {index + 1} dari {total} · {answeredCount} terjawab
-        </span>
+        <span>{t(lang, "quiz.progress", index + 1, total, answeredCount)}</span>
         <span
           className={`rounded-full px-2 py-0.5 font-semibold ${
-            sourceInfo.label === "Soal contoh"
+            sourceInfo.label === t(lang, "logic.sample")
               ? "bg-amber-100 text-amber-800"
               : "bg-emerald-100 text-emerald-800"
           }`}
         >
           {sourceInfo.label}
-          {shownInference ? ` · ${inferenceSourceLabel(shownInference)}` : ""}
+          {shownInference ? ` · ${inferenceSourceLabel(shownInference, lang)}` : ""}
           {` · ${sourceInfo.provenance}`}
         </span>
       </div>
@@ -184,9 +185,9 @@ export default function QuizScreen({
             disabled={isReportedNow}
             className="text-xs text-gray-500 underline hover:text-gray-700 disabled:no-underline disabled:text-emerald-700"
           >
-            {isReportedNow ? "✓ Laporanmu tersimpan, terima kasih" : "Laporkan soal salah"}
+            {isReportedNow ? t(lang, "quiz.reported") : t(lang, "quiz.report")}
           </button>
-          <span className="text-xs text-gray-400">Kunci jawaban tidak ditampilkan di sini.</span>
+          <span className="text-xs text-gray-400">{t(lang, "quiz.keyHidden")}</span>
         </div>
       </div>
 
@@ -196,21 +197,21 @@ export default function QuizScreen({
           disabled={index === 0}
           className="rounded-lg border bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"
         >
-          &larr; Sebelumnya
+          {t(lang, "quiz.prev")}
         </button>
         {isLast ? (
           <button
             onClick={finish}
             className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
-            Selesai &amp; lihat hasil
+            {t(lang, "quiz.finish")}
           </button>
         ) : (
           <button
             onClick={() => setIndex((v) => Math.min(total - 1, v + 1))}
             className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
-            Berikutnya &rarr;
+            {t(lang, "quiz.next")}
           </button>
         )}
       </div>

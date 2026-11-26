@@ -3,6 +3,7 @@
 "use client";
 
 import { useState } from "react";
+import { t, type Language } from "../lib/i18n";
 import {
   inferenceSourceLabel,
   sessionInferenceSource,
@@ -23,6 +24,7 @@ import {
 const LETTERS = ["A", "B", "C", "D", "E"];
 
 interface ResultsScreenProps {
+  lang: Language;
   subtest: SubtestId;
   mode: SessionMode;
   answered: AnsweredQuestion[];
@@ -38,10 +40,10 @@ interface ResultsScreenProps {
   onHome: () => void;
 }
 
-function ReportButton({ q }: { q: AnsweredQuestion["question"] }) {
+function ReportButton({ lang, q }: { lang: Language; q: AnsweredQuestion["question"] }) {
   const [done, setDone] = useState(() => isReported(q.id));
   if (done) {
-    return <span className="text-xs font-semibold text-emerald-700">✓ Laporan tersimpan</span>;
+    return <span className="text-xs font-semibold text-emerald-700">{t(lang, "results.reported")}</span>;
   }
   return (
     <button
@@ -57,12 +59,13 @@ function ReportButton({ q }: { q: AnsweredQuestion["question"] }) {
       }}
       className="text-xs text-gray-500 underline hover:text-gray-700"
     >
-      Laporkan soal salah
+      {t(lang, "results.report")}
     </button>
   );
 }
 
 export default function ResultsScreen({
+  lang,
   subtest,
   mode,
   answered,
@@ -81,7 +84,10 @@ export default function ResultsScreen({
   // question never shows as "Dibuat AI"). Same helper as QuizScreen: the
   // inference source is shown only when the session actually contains
   // AI-generated questions.
-  const sourceInfo = sessionSourceInfo(answered.map((a) => a.question));
+  const sourceInfo = sessionSourceInfo(
+    answered.map((a) => a.question),
+    lang,
+  );
   const shownInference = sessionInferenceSource(
     answered.map((a) => a.question),
     inferenceSource,
@@ -90,12 +96,12 @@ export default function ResultsScreen({
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="rounded-xl border bg-white p-6 text-center shadow-sm">
         <p className="text-sm text-gray-600">
-          {SUBTESTS[subtest].name} · {mode === "drill" ? "Drill Cepat" : "Tryout"}
+          {SUBTESTS[subtest].name} · {mode === "drill" ? t(lang, "quiz.modeDrill") : t(lang, "quiz.modeTryout")}
         </p>
         <p className="mt-2 text-5xl font-extrabold text-emerald-700">{score}</p>
         <p className="mt-1 text-sm text-gray-700">
-          {correct} benar dari {total} soal · {sourceInfo.label}
-          {shownInference ? ` (${inferenceSourceLabel(shownInference)})` : ""}
+          {t(lang, "results.correctOf", correct, total)} · {sourceInfo.label}
+          {shownInference ? ` (${inferenceSourceLabel(shownInference, lang)})` : ""}
           {` · ${sourceInfo.provenance}`}
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -103,20 +109,20 @@ export default function ResultsScreen({
             onClick={onRetest}
             className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
-            {mode === "drill" ? "Drill lagi" : "Tryout ulang"}
+            {mode === "drill" ? t(lang, "results.retestDrill") : t(lang, "results.retestTryout")}
           </button>
           <button
             onClick={onHome}
             className="rounded-lg border bg-white px-5 py-2 text-sm font-semibold text-gray-700 hover:border-emerald-400"
           >
-            Kembali ke beranda
+            {t(lang, "results.backHome")}
           </button>
         </div>
       </div>
 
       <section className="mt-6 rounded-xl border bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-gray-900">Peta kelemahanmu</h2>
-        <p className="text-xs text-gray-500">Persentase benar per subtopik — yang paling lemah di atas.</p>
+        <h2 className="text-base font-bold text-gray-900">{t(lang, "results.weaknessMap")}</h2>
+        <p className="text-xs text-gray-500">{t(lang, "results.weaknessSub")}</p>
         <ul className="mt-4 space-y-3">
           {weakness.map((w) => (
             <li key={w.subtopic}>
@@ -138,21 +144,19 @@ export default function ResultsScreen({
       </section>
 
       <section className="mt-6 rounded-xl border bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-gray-900">Rencana latihan 7 hari</h2>
-        {planLoading && <p className="mt-2 text-sm text-gray-500">Menyusun rencanamu…</p>}
+        <h2 className="text-base font-bold text-gray-900">{t(lang, "results.plan")}</h2>
+        {planLoading && <p className="mt-2 text-sm text-gray-500">{t(lang, "results.planLoading")}</p>}
         {!planLoading && plan && (
           <>
             <p className="mt-1 text-xs text-gray-500">
-              {plan.source === "ai"
-                ? "Disusun AI dari peta kelemahanmu."
-                : "Disusun otomatis dari peta kelemahanmu."}
+              {plan.source === "ai" ? t(lang, "results.planAi") : t(lang, "results.planAuto")}
             </p>
             <ol className="mt-3 space-y-3">
               {plan.days.map((d) => (
                 <li key={d.day} className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
-                      Hari {d.day} · {d.subtopic}
+                      {t(lang, "results.day", d.day, d.subtopic)}
                     </p>
                     <p className="text-sm text-gray-600">{d.focus}</p>
                     <p className="text-xs text-gray-500">{d.target}</p>
@@ -162,7 +166,7 @@ export default function ResultsScreen({
                       onClick={() => onDrillSubtopic(d.subtopic)}
                       className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
                     >
-                      Mulai drill
+                      {t(lang, "results.startDrill")}
                     </button>
                   )}
                 </li>
@@ -173,15 +177,15 @@ export default function ResultsScreen({
       </section>
 
       <section className="mt-6 rounded-xl border bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-gray-900">Pembahasan per soal</h2>
+        <h2 className="text-base font-bold text-gray-900">{t(lang, "results.review")}</h2>
         <ol className="mt-4 space-y-5">
           {answered.map((a, i) => {
-            const tag = verifiedTagText(a.question);
+            const tag = verifiedTagText(a.question, lang);
             return (
             <li key={a.question.id} className="border-b border-gray-100 pb-4 last:border-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                Soal {i + 1} · {a.question.subtopic}
-                {a.question.source === "contoh" ? " · Soal contoh" : ""}
+                {t(lang, "results.questionLabel", i + 1, a.question.subtopic)}
+                {a.question.source === "contoh" ? ` · ${t(lang, "results.sampleQuestion")}` : ""}
                 {tag ? ` · ${tag}` : ""}
               </p>
               <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-900">
@@ -189,16 +193,16 @@ export default function ResultsScreen({
               </p>
               <div className="mt-2 text-sm">
                 <p>
-                  Jawabanmu:{" "}
+                  {t(lang, "results.yourAnswer")}{" "}
                   <span className={a.correct ? "font-semibold text-emerald-700" : "font-semibold text-red-700"}>
                     {a.selectedIndex === null
-                      ? "Tidak dijawab"
+                      ? t(lang, "results.notAnswered")
                       : `${LETTERS[a.selectedIndex]}. ${a.question.options[a.selectedIndex]}`}
                   </span>
                 </p>
                 {!a.correct && (
                   <p>
-                    Jawaban benar:{" "}
+                    {t(lang, "results.correctAnswer")}{" "}
                     <span className="font-semibold text-emerald-700">
                       {LETTERS[a.question.answerIndex]}. {a.question.options[a.question.answerIndex]}
                     </span>
@@ -206,10 +210,10 @@ export default function ResultsScreen({
                 )}
               </div>
               <p className="mt-2 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-700">
-                <strong>Pembahasan:</strong> {a.question.explanation}
+                <strong>{t(lang, "results.explanation")}</strong> {a.question.explanation}
               </p>
               <div className="mt-2">
-                <ReportButton q={a.question} />
+                <ReportButton lang={lang} q={a.question} />
               </div>
             </li>
             );

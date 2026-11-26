@@ -2,6 +2,7 @@
 // Scoring, weakness map, drill-plan fallback, timer helpers, and strict
 // validation of AI-generated question JSON.
 
+import { t, type Language } from "./i18n";
 import {
   AnsweredQuestion,
   DRILL_QUESTION_COUNT,
@@ -13,11 +14,14 @@ import {
   WeaknessEntry,
 } from "./types";
 
-/** User-facing label for an inference source: "on-device" | "cloud" | "campuran". */
-export function inferenceSourceLabel(source: Exclude<InferenceSource, null>): string {
+/** User-facing label for an inference source: "on-device" | "cloud" | "campuran"/"mixed". */
+export function inferenceSourceLabel(
+  source: Exclude<InferenceSource, null>,
+  lang: Language = "id",
+): string {
   if (source === "ON_DEVICE") return "on-device";
   if (source === "IN_CLOUD") return "cloud";
-  return "campuran";
+  return t(lang, "logic.mixedSource");
 }
 
 /**
@@ -71,19 +75,27 @@ export interface SessionSourceInfo {
   provenance: string;
 }
 
-export function sessionSourceInfo(questions: readonly Question[]): SessionSourceInfo {
-  if (questions.length === 0) return { label: "Dibuat AI + soal contoh", provenance: "terverifikasi" };
+export function sessionSourceInfo(
+  questions: readonly Question[],
+  lang: Language = "id",
+): SessionSourceInfo {
+  if (questions.length === 0)
+    return { label: t(lang, "logic.mixed"), provenance: t(lang, "logic.verified") };
   const allSeed = questions.every((q) => q.source === "contoh");
   const allAi = questions.every((q) => q.source === "ai");
   const allAudit = questions.every((q) => q.verifiedBy === "audit");
   const allValidator = questions.every((q) => q.verifiedBy === "validator");
   const allVerified = questions.every((q) => q.verified === true);
-  const label = allSeed ? "Soal contoh" : allAi ? "Dibuat AI" : "Dibuat AI + soal contoh";
+  const label = allSeed
+    ? t(lang, "logic.sample")
+    : allAi
+      ? t(lang, "logic.aiMade")
+      : t(lang, "logic.mixed");
   let provenance: string;
-  if (allAudit) provenance = "diaudit manusia";
-  else if (allValidator) provenance = "lolos validasi otomatis";
-  else if (allVerified) provenance = "terverifikasi";
-  else provenance = "sebagian terverifikasi";
+  if (allAudit) provenance = t(lang, "logic.audit");
+  else if (allValidator) provenance = t(lang, "logic.validator");
+  else if (allVerified) provenance = t(lang, "logic.verified");
+  else provenance = t(lang, "logic.partial");
   return { label, provenance };
 }
 
@@ -93,10 +105,10 @@ export function sessionSourceInfo(questions: readonly Question[]): SessionSource
  * for AI questions that passed the deterministic validator. Returns null
  * when the question is not verified (no tag is shown).
  */
-export function verifiedTagText(question: Question): string | null {
-  if (question.verifiedBy === "audit") return "✓ Diaudit manusia";
-  if (question.verifiedBy === "validator") return "✓ Lolos validasi otomatis";
-  if (question.verified === true) return "✓ Terverifikasi";
+export function verifiedTagText(question: Question, lang: Language = "id"): string | null {
+  if (question.verifiedBy === "audit") return t(lang, "logic.tagAudit");
+  if (question.verifiedBy === "validator") return t(lang, "logic.tagValidator");
+  if (question.verified === true) return t(lang, "logic.tagVerified");
   return null;
 }
 
@@ -127,7 +139,10 @@ export function computeWeaknessMap(answered: AnsweredQuestion[]): WeaknessEntry[
 /** Deterministic 7-day drill plan from the weakness map (fallback when the
  *  AI plan is unavailable). Weakest subtopics get the most days; day 7 is
  *  always a full retest. */
-export function buildDrillPlanFallback(weakness: WeaknessEntry[]): DrillPlan {
+export function buildDrillPlanFallback(
+  weakness: WeaknessEntry[],
+  lang: Language = "id",
+): DrillPlan {
   const weak = weakness.filter((w) => w.percent < 100);
   const focus: string[] =
     weak.length > 0
@@ -138,9 +153,9 @@ export function buildDrillPlanFallback(weakness: WeaknessEntry[]): DrillPlan {
     if (day === 7) {
       days.push({
         day,
-        subtopic: "Tryout ulang",
-        focus: "Ukur lagi setelah 6 hari latihan.",
-        target: "Kerjakan 1 sesi Tryout dan bandingkan skormu.",
+        subtopic: t(lang, "logic.planRetest"),
+        focus: t(lang, "logic.planRetestFocus"),
+        target: t(lang, "logic.planRetestTarget"),
       });
       continue;
     }
@@ -152,11 +167,11 @@ export function buildDrillPlanFallback(weakness: WeaknessEntry[]): DrillPlan {
       subtopic,
       focus:
         pct < 50
-          ? `Fondasi ${subtopic} masih lemah (${pct}% benar). Pelajari konsep dasarnya dulu, baru latihan soal.`
+          ? t(lang, "logic.planFocusWeak", subtopic, pct)
           : pct < 80
-            ? `${subtopic} sudah lumayan (${pct}% benar). Latihan soal yang lebih sulit.`
-            : `${subtopic} sudah kuat (${pct}% benar). Jaga dengan latihan singkat.`,
-      target: `Kerjakan ${DRILL_QUESTION_COUNT} soal drill ${subtopic}.`,
+            ? t(lang, "logic.planFocusMid", subtopic, pct)
+            : t(lang, "logic.planFocusStrong", subtopic, pct),
+      target: t(lang, "logic.planTarget", DRILL_QUESTION_COUNT, subtopic),
     });
   }
   return { source: "aturan", days };
