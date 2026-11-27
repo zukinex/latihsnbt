@@ -32,7 +32,7 @@ export const VALIDATOR_VERSION = 1;
 /** The only generator names the bank accepts. Anything else (e.g. a caller
  *  claiming "human-audit") is refused, so provenance metadata cannot be
  *  faked by the caller. */
-export const VERIFIED_BANK_GENERATORS = ["gemini-3.8-flash"] as const;
+export const VERIFIED_BANK_GENERATORS = ["gemini-3.8-flash", "gemini-4-hydrogen"] as const;
 /** The only difficulty labels the bank accepts. */
 export const VERIFIED_BANK_DIFFICULTIES = ["SNBT", "unknown"] as const;
 

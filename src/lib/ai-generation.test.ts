@@ -21,6 +21,12 @@ vi.mock("firebase/ai", () => ({
     PREFER_IN_CLOUD: "PREFER_IN_CLOUD",
     ONLY_IN_CLOUD: "ONLY_IN_CLOUD",
   },
+  ThinkingLevel: {
+    MINIMAL: "MINIMAL",
+    LOW: "LOW",
+    MEDIUM: "MEDIUM",
+    HIGH: "HIGH",
+  },
   Schema: {
     object: () => ({}),
     array: () => ({}),

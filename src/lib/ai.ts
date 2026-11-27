@@ -18,10 +18,11 @@
 //   result.response.inferenceSource;   // "ON_DEVICE" | "IN_CLOUD" (SDK v12.5.0+)
 //
 // Notes:
-// - The cloud model is gemini-3.8-flash (stable, Firebase AI Logic docs,
-//   verified 2026-11-26), set explicitly in `inCloudParams.model`.
-//   It replaced gemini-3.5-flash-lite on 2026-11-26 after that model
-//   returned HTTP 500 "high demand" twice in live tests.
+// - The cloud model is gemini-4-hydrogen (stable, Firebase AI Logic docs,
+//   verified 2026-11-27) with ThinkingLevel.LOW, set explicitly in
+//   `inCloudParams.model`. It replaced gemini-3.8-flash on 2026-11-27
+//   after that model never answered within the 60s timeout in live tests
+//   (3 timeouts, 0 questions), while Hydrogen answered in ~25s.
 // - On-device inference uses Chrome's Prompt API (Gemini Nano). Its
 //   supported languages are limited, so Indonesian prompts will usually
 //   fall back to the cloud — that is the designed behaviour of
@@ -39,6 +40,7 @@ import {
   GoogleAIBackend,
   InferenceMode,
   Schema,
+  ThinkingLevel,
   type GenerativeModel,
 } from "firebase/ai";
 import { getFirebaseApp } from "./firebase";
@@ -106,7 +108,10 @@ export const AI_CALL_BACKOFFS_MS = [2000, 4000];
  *  lite answered 3 questions in ~6s — so 30s is below the model's real
  *  latency in this setup, not a batch-size problem. One 60s experiment
  *  decides whether the model just needs longer; the 90s batch budget
- *  still caps the whole generateQuestions call. */
+ *  still caps the whole generateQuestions call.
+ *  Outcome 2026-11-27: the 60s experiment showed 3.8-flash still cannot
+ *  answer (3 timeouts, 0 questions); the model was switched to
+ *  gemini-4-hydrogen + ThinkingLevel.LOW, which answered in ~25s. */
 export const AI_CALL_TIMEOUT_MS = 60_000;
 
 /**
@@ -315,13 +320,16 @@ function buildQuestionModel(
   return getGenerativeModel(ai, {
     mode: inferenceMode,
     inCloudParams: {
-      // Cloud model: gemini-3.8-flash (stable; the documented replacement
-      // for the gemini-3.5/3.6/3.7 Flash line), used automatically as
+      // Cloud model: gemini-4-hydrogen (stable; the documented replacement
+      // for the gemini-3.8-flash line), used automatically as
       // the PREFER_ON_DEVICE fallback and for PREFER_IN_CLOUD.
-      model: "gemini-3.8-flash",
+      // ThinkingLevel.LOW: Hydrogen defaults to HIGH; LOW keeps responses
+      // inside the 60s call timeout (verified live 2026-11-27: ~25s).
+      model: "gemini-4-hydrogen",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: questionSchema,
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
       },
     },
     onDeviceParams: {
@@ -578,7 +586,7 @@ export async function generateQuestions(
   // verdict is refused here as well.
   for (const q of valid) {
     if (q.source === "ai") {
-      addVerified(q, { generator: "gemini-3.8-flash", difficulty: "SNBT" });
+      addVerified(q, { generator: "gemini-4-hydrogen", difficulty: "SNBT" });
     }
   }
   return { questions: valid.slice(0, count), inferenceSource, fromBank, generationFailed };
@@ -624,11 +632,12 @@ export async function generateDrillPlan(
   const model = getGenerativeModel(ai, {
     mode: InferenceMode.PREFER_IN_CLOUD,
     inCloudParams: {
-      // Same cloud model as question generation (gemini-3.8-flash).
-      model: "gemini-3.8-flash",
+      // Same cloud model as question generation (gemini-4-hydrogen).
+      model: "gemini-4-hydrogen",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: drillPlanSchema,
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
       },
     },
     onDeviceParams: {
