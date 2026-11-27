@@ -1,9 +1,12 @@
 // UI language support for LatihSNBT (ID/EN toggle).
 //
 // The app's CONTENT stays Indonesian: SNBT is an Indonesian exam, so the
-// questions, explanations, subtest names and subtopic names are Indonesian
-// in both modes (like a proper noun). What translates is the UI chrome —
-// buttons, headers, badges, notices, loading text, drill-plan templates.
+// questions, explanations and subtest names are Indonesian in both modes
+// (like a proper noun). What translates is the UI chrome — buttons,
+// headers, badges, notices, loading text, drill-plan templates — plus the
+// subtopic DISPLAY names (subtopicLabel): the stored subtopic values stay
+// Indonesian so validation, weakness grouping and drill plans keep using
+// the same keys, but what the student reads translates in EN mode.
 // That is what "the app must at least support English" (#BuildHybridAI
 // FAQ) asks for, and the home screen says so explicitly: the audience is
 // Indonesian students preparing for SNBT.
@@ -239,9 +242,11 @@ export function stringEntries(): { key: StringKey; id: string; en: string }[] {
   return stringKeys().map((key) => ({ key, id: STRINGS[key].id, en: STRINGS[key].en }));
 }
 
-// Subtest descriptions are UI text, so they translate too. Names, short
-// names and subtopics stay Indonesian — they are the exam's own terms
-// (the same in both languages, like a proper noun).
+// Subtest descriptions are UI text, so they translate too. Names and short
+// names stay Indonesian — they are the exam's own terms (the same in both
+// languages, like a proper noun). Subtopic display names translate as
+// well (SUBTOPIC_EN below); only the stored subtopic values stay
+// Indonesian, as keys for validation, weakness grouping and drill plans.
 const SUBTEST_DESCRIPTIONS: Record<SubtestId, { id: string; en: string }> = {
   matematika: {
     id: "Penalaran kuantitatif level SMA: fungsi dan pertumbuhan, peluang, optimasi, barisan dan deret, statistika.",
@@ -275,4 +280,48 @@ const SUBTEST_DESCRIPTIONS: Record<SubtestId, { id: string; en: string }> = {
 
 export function subtestDescription(lang: Language, id: SubtestId): string {
   return SUBTEST_DESCRIPTIONS[id][lang];
+}
+
+/**
+ * English display names for subtopics, keyed by the Indonesian subtopic
+ * value stored in SUBTESTS / Question.subtopic. The stored value never
+ * changes — only what is shown translates (see subtopicLabel). Unknown
+ * subtopics fall back to themselves, so a future bank addition can never
+ * render blank. The four literasi-inggris subtopics are already English
+ * and map to themselves.
+ */
+const SUBTOPIC_EN: Record<string, string> = {
+  "Fungsi dan pertumbuhan": "Functions and growth",
+  Peluang: "Probability",
+  Optimasi: "Optimization",
+  "Barisan dan deret": "Sequences and series",
+  Statistika: "Statistics",
+  Simpulan: "Conclusions",
+  "Sikap penulis": "Author's stance",
+  "Evaluasi argumen": "Argument evaluation",
+  "Struktur teks": "Text structure",
+  Inferensi: "Inference",
+  Induktif: "Inductive",
+  Deduktif: "Deductive",
+  Kuantitatif: "Quantitative",
+  Leksikal: "Vocabulary",
+  "Informasi umum": "General information",
+  "Pengetahuan umum": "General knowledge",
+  "Pemilihan gagasan": "Idea selection",
+  "Penataan gagasan": "Idea organization",
+  "Perbaikan gagasan": "Idea revision",
+  Bilangan: "Numbers",
+  Aljabar: "Algebra",
+  "Geometri dan pengukuran": "Geometry and measurement",
+  "Data dan peluang": "Data and probability",
+  "Main idea": "Main idea",
+  Inference: "Inference",
+  "Vocabulary in context": "Vocabulary in context",
+  "Author's purpose": "Author's purpose",
+};
+
+/** Display name for a subtopic in the given language. */
+export function subtopicLabel(subtopic: string, lang: Language): string {
+  if (lang === "id") return subtopic;
+  return SUBTOPIC_EN[subtopic] ?? subtopic;
 }

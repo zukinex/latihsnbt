@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { t, type Language } from "../lib/i18n";
+import { subtopicLabel, t, type Language } from "../lib/i18n";
 import {
   formatDuration,
   inferenceSourceLabel,
@@ -146,7 +146,7 @@ export default function QuizScreen({
 
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-          {current.subtopic}
+          {subtopicLabel(current.subtopic, lang)}
           {currentTag && (
             <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 normal-case text-emerald-800">
               {currentTag}

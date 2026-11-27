@@ -3,7 +3,7 @@
 "use client";
 
 import { useState } from "react";
-import { t, type Language } from "../lib/i18n";
+import { subtopicLabel, t, type Language } from "../lib/i18n";
 import {
   inferenceSourceLabel,
   sessionInferenceSource,
@@ -127,7 +127,7 @@ export default function ResultsScreen({
           {weakness.map((w) => (
             <li key={w.subtopic}>
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-gray-800">{w.subtopic}</span>
+                <span className="font-medium text-gray-800">{subtopicLabel(w.subtopic, lang)}</span>
                 <span className="text-gray-600">
                   {w.correct}/{w.total} · {w.percent}%
                 </span>
@@ -156,7 +156,7 @@ export default function ResultsScreen({
                 <li key={d.day} className="flex items-start justify-between gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
-                      {t(lang, "results.day", d.day, d.subtopic)}
+                      {t(lang, "results.day", d.day, subtopicLabel(d.subtopic, lang))}
                     </p>
                     <p className="text-sm text-gray-600">{d.focus}</p>
                     <p className="text-xs text-gray-500">{d.target}</p>
@@ -184,7 +184,7 @@ export default function ResultsScreen({
             return (
             <li key={a.question.id} className="border-b border-gray-100 pb-4 last:border-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                {t(lang, "results.questionLabel", i + 1, a.question.subtopic)}
+                {t(lang, "results.questionLabel", i + 1, subtopicLabel(a.question.subtopic, lang))}
                 {a.question.source === "contoh" ? ` · ${t(lang, "results.sampleQuestion")}` : ""}
                 {tag ? ` · ${tag}` : ""}
               </p>

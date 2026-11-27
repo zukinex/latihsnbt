@@ -1,7 +1,7 @@
 // Home screen: pick a subtest + mode, see best scores and recent sessions.
 "use client";
 
-import { subtestDescription, t, type Language } from "../lib/i18n";
+import { subtestDescription, subtopicLabel, t, type Language } from "../lib/i18n";
 import {
   SUBTESTS,
   TRYOUT_QUESTION_COUNT,
@@ -56,7 +56,7 @@ export default function HomeScreen({ lang, configured, bestScores, recent, onSta
               <h2 className="text-lg font-bold text-gray-900">{info.name}</h2>
               <p className="mt-1 text-sm text-gray-600">{subtestDescription(lang, id)}</p>
               <p className="mt-2 text-xs text-gray-500">
-                {t(lang, "home.subtopicsLabel", info.subtopics.join(" · "))}
+                {t(lang, "home.subtopicsLabel", info.subtopics.map((s) => subtopicLabel(s, lang)).join(" · "))}
               </p>
               {best !== null && best !== undefined && (
                 <p className="mt-2 text-sm font-semibold text-emerald-700">

@@ -20,6 +20,7 @@ import {
   readLanguage,
   stringEntries,
   subtestDescription,
+  subtopicLabel,
   t,
   type Language,
 } from "./i18n";
@@ -29,7 +30,7 @@ import {
   sessionSourceInfo,
   verifiedTagText,
 } from "./logic";
-import type { Question, SubtestId, WeaknessEntry } from "./types";
+import { SUBTESTS, type Question, type SubtestId, type WeaknessEntry } from "./types";
 
 function placeholders(s: string): string[] {
   return [...s.matchAll(/\{(\d+)\}/g)].map((m) => m[1]).sort();
@@ -91,6 +92,34 @@ describe("i18n dictionary completeness", () => {
 
   it("defaults to Indonesian when no language is stored", () => {
     expect(readLanguage()).toBe("id");
+  });
+});
+
+describe("subtopic display labels", () => {
+  it("has an English label for every subtopic in SUBTESTS", () => {
+    const all = Object.values(SUBTESTS).flatMap((s) => s.subtopics);
+    expect(all.length).toBe(27);
+    for (const s of all) {
+      expect(subtopicLabel(s, "en").trim().length, s).toBeGreaterThan(0);
+    }
+  });
+
+  it("translates Indonesian subtopics to English", () => {
+    expect(subtopicLabel("Aljabar", "en")).toBe("Algebra");
+    expect(subtopicLabel("Peluang", "en")).toBe("Probability");
+    expect(subtopicLabel("Simpulan", "en")).toBe("Conclusions");
+    expect(subtopicLabel("Pemilihan gagasan", "en")).toBe("Idea selection");
+    expect(subtopicLabel("Geometri dan pengukuran", "en")).toBe("Geometry and measurement");
+  });
+
+  it("keeps English subtopics unchanged and returns Indonesian in id mode", () => {
+    expect(subtopicLabel("Main idea", "en")).toBe("Main idea");
+    expect(subtopicLabel("Inference", "en")).toBe("Inference");
+    expect(subtopicLabel("Aljabar", "id")).toBe("Aljabar");
+  });
+
+  it("falls back to the original for unknown subtopics", () => {
+    expect(subtopicLabel("Topik baru", "en")).toBe("Topik baru");
   });
 });
 
