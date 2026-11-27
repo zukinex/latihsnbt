@@ -3,7 +3,8 @@
 // without a real Firebase project. These are written by us for this app; they
 // are NOT copied from real SNBT questions (those belong to SNPMB and are not
 // freely published). Every sample question is labelled "Soal contoh" in the
-// UI and carries source: "contoh". All math answers hand-verified 2026-11-25.
+// UI and carries source: "contoh". All math answers hand-verified 2026-11-25
+// (batch 1, 100 questions) and 2026-11-28 (batch 2, +70 questions).
 
 import { Question } from "./types";
 
@@ -1376,9 +1377,936 @@ export const SAMPLE_QUESTIONS: Question[] = [
       "Rian memakai bahan sederhana (pasir, kerikil, arang, botol plastik), gagal berkali-kali, terus menguji hingga berhasil, lalu desainnya ditiru satu desa. Itu menunjukkan bahwa bahan sederhana plus pengujian yang tekun dapat menyelesaikan masalah nyata. Rian tidak mematenkan atau menjual desainnya, percobaan pertamanya justru gagal, dan bacaan tidak pernah menyatakan air sumur aman di musim kemarau.",
     source: "contoh",
   },
+  // --- Penalaran Matematika (10): mat-16..25 ---
+  {
+    id: "contoh-mat-16",
+    subtest: "matematika",
+    subtopic: "Fungsi dan pertumbuhan",
+    text: "Suatu koloni jamur berlipat ganda setiap 30 menit. Jika mula-mula terdapat 50 spora, berapa banyak spora setelah 3 jam?",
+    options: ["800", "1.600", "3.200", "6.400", "12.800"],
+    answerIndex: 2,
+    explanation:
+      "3 jam = 180 menit, sehingga terjadi 180 ÷ 30 = 6 kali lipat ganda. Jadi, banyak spora = 50 × 2^6 = 50 × 64 = 3.200.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-17",
+    subtest: "matematika",
+    subtopic: "Fungsi dan pertumbuhan",
+    text: "Harga sewa sebuah mobil adalah Rp150.000,00 per hari ditambah Rp2.500,00 per km. Jika total biaya sewa sebuah mobil adalah Rp400.000,00, berapa km jarak yang ditempuh mobil tersebut?",
+    options: ["60", "80", "120", "100", "150"],
+    answerIndex: 3,
+    explanation:
+      "Biaya total = 150.000 + 2.500 × jarak = 400.000, sehingga 2.500 × jarak = 250.000. Jadi, jarak yang ditempuh = 250.000 ÷ 2.500 = 100.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-18",
+    subtest: "matematika",
+    subtopic: "Peluang",
+    text: "Tiga koin dilempar sekaligus. Berapa peluang muncul tepat dua sisi gambar?",
+    options: ["1/8", "3/8", "1/4", "1/2", "5/8"],
+    answerIndex: 1,
+    explanation:
+      "Semua hasil yang mungkin ada 2^3 = 8. Hasil dengan tepat dua gambar adalah GGA, GAG, dan AGG — ada 3. Jadi, peluangnya = 3/8.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-19",
+    subtest: "matematika",
+    subtopic: "Peluang",
+    text: "Dalam sebuah kantong terdapat 4 kelereng hijau dan 6 kelereng kuning. Dua kelereng diambil satu per satu tanpa pengembalian. Berapa peluang kedua kelereng yang terambil berwarna hijau?",
+    options: ["2/15", "1/15", "1/5", "4/15", "1/3"],
+    answerIndex: 0,
+    explanation:
+      "Peluang hijau pertama = 4/10. Setelah satu hijau diambil, tersisa 3 hijau dari 9 kelereng, jadi peluang hijau kedua = 3/9. Jadi, peluang keduanya hijau = 4/10 × 3/9 = 12/90 = 2/15.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-20",
+    subtest: "matematika",
+    subtopic: "Optimasi",
+    text: "Selembar kawat sepanjang 60 cm akan dibentuk menjadi sebuah persegi panjang. Berapa luas maksimum persegi panjang yang dapat dibentuk?",
+    options: ["180", "200", "250", "300", "225"],
+    answerIndex: 4,
+    explanation:
+      "Keliling 60 cm berarti panjang + lebar = 30 cm. Jika lebarnya x cm, panjangnya (30 − x) cm, sehingga luas = x(30 − x) = 30x − x². Parabola ini mencapai maksimum saat x = 15. Jadi, luas maksimum = 15 × 15 = 225.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-21",
+    subtest: "matematika",
+    subtopic: "Optimasi",
+    text: "Sebuah pabrik membuat meja dan kursi. Setiap meja membutuhkan 3 jam kerja dan memberi keuntungan Rp120.000,00; setiap kursi membutuhkan 2 jam kerja dan memberi keuntungan Rp90.000,00. Tersedia 120 jam kerja dan paling banyak 50 unit dapat dibuat. Berapa keuntungan maksimum yang dapat diperoleh?",
+    options: ["Rp4.500.000,00", "Rp4.800.000,00", "Rp5.100.000,00", "Rp5.400.000,00", "Rp6.000.000,00"],
+    answerIndex: 2,
+    explanation:
+      "Kendala: 3x + 2y ≤ 120 dan x + y ≤ 50, dengan x meja dan y kursi. Titik sudut daerah layak: (40,0) → 40 × 120 = 4.800; (0,50) → 50 × 90 = 4.500; perpotongan kedua garis → x = 20, y = 30 → 20 × 120 + 30 × 90 = 2.400 + 2.700 = 5.100. Jadi, keuntungan maksimum = 5.100 (ribu rupiah) = Rp5.100.000,00.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-22",
+    subtest: "matematika",
+    subtopic: "Barisan dan deret",
+    text: "Suku ke-5 suatu barisan aritmetika adalah 23 dan suku ke-9 adalah 39. Berapa suku ke-15 barisan tersebut?",
+    options: ["55", "63", "59", "67", "71"],
+    answerIndex: 1,
+    explanation:
+      "a + 4d = 23 dan a + 8d = 39, sehingga 4d = 16 → d = 4 dan a = 7. Jadi, suku ke-15 = 7 + 14 × 4 = 63.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-23",
+    subtest: "matematika",
+    subtopic: "Barisan dan deret",
+    text: "Berapa jumlah 6 suku pertama dari deret geometri 2 + 6 + 18 + ...?",
+    options: ["364", "486", "972", "728", "1.458"],
+    answerIndex: 3,
+    explanation:
+      "Rasio deret: r = 6 ÷ 2 = 3. Jadi, S6 = 2 × (3^6 − 1) ÷ (3 − 1) = 2 × 728 ÷ 2 = 728.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-24",
+    subtest: "matematika",
+    subtopic: "Statistika",
+    text: "Nilai rata-rata 8 siswa adalah 75. Setelah ditambah nilai 2 siswa baru, rata-rata menjadi 77. Berapa jumlah nilai kedua siswa baru itu?",
+    options: ["170", "150", "160", "180", "190"],
+    answerIndex: 0,
+    explanation:
+      "Jumlah nilai 8 siswa = 8 × 75 = 600. Jumlah nilai 10 siswa = 10 × 77 = 770. Jadi, jumlah nilai dua siswa baru = 770 − 600 = 170.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-mat-25",
+    subtest: "matematika",
+    subtopic: "Statistika",
+    text: "Selisih antara datum terbesar dan datum terkecil dari data 6, 8, 9, 12, 15, 18, 20 adalah ...",
+    options: ["11", "12", "13", "16", "14"],
+    answerIndex: 4,
+    explanation:
+      "Datum terbesar 20 dan datum terkecil 6. Jadi, jangkauan = 20 − 6 = 14.",
+    source: "contoh",
+  },
+  // --- Pengetahuan Kuantitatif (10): pk-15..24 ---
+  {
+    id: "contoh-pk-15",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Bilangan",
+    text: "Berapa FPB dari 48 dan 180?",
+    options: ["6", "12", "18", "24", "36"],
+    answerIndex: 1,
+    explanation:
+      "48 = 2^4 × 3 dan 180 = 2^2 × 3^2 × 5. FPB mengambil pangkat terkecil dari faktor yang sama: 2^2 × 3 = 12. Jadi, FPB dari 48 dan 180 = 12.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-16",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Bilangan",
+    text: "Berapa sisa pembagian 5^2027 oleh 4?",
+    options: ["0", "2", "3", "1", "4"],
+    answerIndex: 3,
+    explanation:
+      "5 dibagi 4 bersisa 1, sehingga setiap pangkat dari 5 juga bersisa 1 bila dibagi 4. Jadi, sisa pembagian 5^2027 oleh 4 = 1.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-17",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Bilangan",
+    text: "Berapa jumlah semua bilangan ganjil dari 11 sampai 29?",
+    options: ["180", "190", "200", "210", "220"],
+    answerIndex: 2,
+    explanation:
+      "Bilangan ganjil dari 11 sampai 29 ada 10 suku: 11, 13, ..., 29. Jumlah deret = (11 + 29) × 10 ÷ 2 = 40 × 5 = 200. Jadi, jumlahnya = 200.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-18",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Aljabar",
+    text: "Jika x + 1/x = 5, berapa nilai x² + 1/x²?",
+    options: ["23", "21", "25", "27", "29"],
+    answerIndex: 0,
+    explanation:
+      "Kuadratkan kedua ruas: (x + 1/x)² = x² + 2 + 1/x² = 25. Jadi, x² + 1/x² = 25 − 2 = 23.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-19",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Aljabar",
+    text: "Jika 2x + 3y = 12 dan x − y = 1, berapa nilai x + y?",
+    options: ["3", "4", "6", "7", "5"],
+    answerIndex: 4,
+    explanation:
+      "Dari x − y = 1 diperoleh x = y + 1. Substitusi ke persamaan pertama: 2(y + 1) + 3y = 12, sehingga 5y + 2 = 12 → 5y = 10 → y = 2 dan x = 3. Jadi, x + y = 3 + 2 = 5.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-20",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Aljabar",
+    text: "Jika f(x) = x² − 4x + 3, berapa nilai f(5) − f(2)?",
+    options: ["7", "8", "9", "10", "11"],
+    answerIndex: 2,
+    explanation:
+      "f(5) = 25 − 20 + 3 = 8 dan f(2) = 4 − 8 + 3 = −1. Jadi, f(5) − f(2) = 8 − (−1) = 9.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-21",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Geometri dan pengukuran",
+    text: "Luas lingkaran yang kelilingnya 44 cm adalah ... (π = 22/7)",
+    options: ["112", "154", "132", "176", "196"],
+    answerIndex: 1,
+    explanation:
+      "Keliling = 2πr = 44, sehingga r = 44 ÷ (2 × 22/7) = 7 cm. Jadi, luas lingkaran = 22/7 × 7² = 22 × 7 = 154.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-22",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Geometri dan pengukuran",
+    text: "Sebuah kubus memiliki luas permukaan 150 cm². Berapa volume kubus tersebut?",
+    options: ["100", "115", "135", "125", "150"],
+    answerIndex: 3,
+    explanation:
+      "Luas permukaan = 6s² = 150, sehingga s² = 25 → s = 5 cm. Jadi, volume kubus = 5³ = 125.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-23",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Data dan peluang",
+    text: "Dua dadu dilempar sekaligus. Berapa peluang muncul mata dadu berjumlah 9?",
+    options: ["1/9", "1/12", "5/36", "1/6", "2/9"],
+    answerIndex: 0,
+    explanation:
+      "Pasangan mata dadu berjumlah 9 adalah (3,6), (4,5), (5,4), dan (6,3) — ada 4 dari 36 hasil yang mungkin. Jadi, peluangnya = 4/36 = 1/9.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pk-24",
+    subtest: "pengetahuan-kuantitatif",
+    subtopic: "Data dan peluang",
+    text: "Sebuah kelas memiliki 12 siswa laki-laki dan 18 siswa perempuan. Jika dipilih satu siswa secara acak, berapa peluang siswa yang terpilih adalah perempuan?",
+    options: ["2/5", "1/2", "2/3", "3/4", "3/5"],
+    answerIndex: 4,
+    explanation:
+      "Jumlah siswa = 12 + 18 = 30. Jadi, peluang terpilih siswa perempuan = 18/30 = 3/5.",
+    source: "contoh",
+  },
+  // --- Penalaran Umum (10): pu-15..24 ---
+  {
+    id: "contoh-pu-15",
+    subtest: "penalaran-umum",
+    subtopic: "Induktif",
+    text: "Perhatikan barisan bilangan berikut: 3, 7, 13, 21, 31, ... Berapa suku berikutnya?",
+    options: ["39", "41", "43", "45", "47"],
+    answerIndex: 2,
+    explanation:
+      "Selisih antarsuku adalah 4, 6, 8, 10 — bertambah 2 setiap langkah, jadi selisih berikut adalah 12. Jadi, suku berikut = 31 + 12 = 43.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-16",
+    subtest: "penalaran-umum",
+    subtopic: "Induktif",
+    text: "Perhatikan barisan bilangan berikut: 5, 11, 23, 47, 95, ... Berapa suku berikutnya?",
+    options: ["191", "189", "190", "192", "193"],
+    answerIndex: 0,
+    explanation:
+      "Setiap suku = suku sebelumnya × 2 + 1: 5 × 2 + 1 = 11, 11 × 2 + 1 = 23, dan seterusnya. Jadi, suku berikut = 95 × 2 + 1 = 191.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-17",
+    subtest: "penalaran-umum",
+    subtopic: "Induktif",
+    text: "Perhatikan barisan bilangan berikut: 8, 27, 64, 125, ... Berapa suku berikutnya?",
+    options: ["196", "206", "226", "216", "236"],
+    answerIndex: 3,
+    explanation:
+      "Barisan ini adalah bilangan kubik: 2³ = 8, 3³ = 27, 4³ = 64, 5³ = 125. Jadi, suku berikut = 6³ = 216.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-18",
+    subtest: "penalaran-umum",
+    subtopic: "Induktif",
+    text: "Perhatikan barisan bilangan berikut: 3, 6, 11, 18, 27, ... Berapa suku berikutnya?",
+    options: ["36", "38", "37", "39", "40"],
+    answerIndex: 1,
+    explanation:
+      "Selisih antarsuku adalah 3, 5, 7, 9 — bilangan ganjil berurutan, jadi selisih berikut adalah 11. Jadi, suku berikut = 27 + 11 = 38.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-19",
+    subtest: "penalaran-umum",
+    subtopic: "Deduktif",
+    text: "Perhatikan premis berikut.\n\nSemua anggota tim A adalah lulusan universitas X. Semua lulusan universitas X wajib mengikuti pelatihan.\n\nBerapa banyak dari simpulan berikut yang PASTI benar?\n\n(1) Semua anggota tim A wajib mengikuti pelatihan.\n(2) Semua orang yang wajib mengikuti pelatihan adalah anggota tim A.\n(3) Ada lulusan universitas X yang bukan anggota tim A.\n(4) Tidak ada anggota tim A yang bukan lulusan universitas X.",
+    options: ["0", "1", "3", "4", "2"],
+    answerIndex: 4,
+    explanation:
+      "Simpulan (1) pasti benar: anggota tim A adalah lulusan X, dan semua lulusan X wajib mengikuti pelatihan. Simpulan (4) pasti benar: semua anggota tim A adalah lulusan X. Simpulan (2) tidak pasti: yang wajib pelatihan mencakup semua lulusan X, bukan hanya tim A. Simpulan (3) tidak pasti: bisa saja seluruh lulusan X adalah anggota tim A. Jadi, banyak simpulan yang pasti benar = 2.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-20",
+    subtest: "penalaran-umum",
+    subtopic: "Deduktif",
+    text: "Perhatikan premis berikut.\n\nJika hari hujan, jalanan menjadi licin. Hari ini jalanan tidak licin.\n\nBerapa banyak dari simpulan berikut yang PASTI benar?\n\n(1) Hari ini tidak hujan.\n(2) Hari ini hujan.\n(3) Jalanan licin hanya terjadi saat hujan.\n(4) Jika hari tidak hujan, jalanan tidak licin.",
+    options: ["0", "1", "2", "3", "4"],
+    answerIndex: 1,
+    explanation:
+      "Simpulan (1) pasti benar (modus tollens): hujan membuat jalanan licin, jadi jalanan tidak licin berarti hari ini tidak hujan. Simpulan (2) bertentangan dengan premis. Simpulan (3) tidak pasti: jalanan bisa licin karena sebab lain selain hujan. Simpulan (4) tidak pasti: mengingkari anteseden tidak menghasilkan simpulan yang pasti. Jadi, banyak simpulan yang pasti benar = 1.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-21",
+    subtest: "penalaran-umum",
+    subtopic: "Deduktif",
+    text: "Dalam sebuah survei, semua responden yang suka kopi juga suka teh. Tidak semua responden suka teh.\n\nBerapa banyak dari simpulan berikut yang PASTI benar?\n\n(1) Ada responden yang tidak suka kopi.\n(2) Semua responden yang tidak suka teh juga tidak suka kopi.\n(3) Ada responden yang suka teh tetapi tidak suka kopi.",
+    options: ["0", "1", "2", "3", "4"],
+    answerIndex: 2,
+    explanation:
+      "Simpulan (1) pasti benar: ada responden yang tidak suka teh, dan mereka pasti tidak suka kopi karena semua penyuka kopi adalah penyuka teh. Simpulan (2) pasti benar: ini kontrapositif dari premis pertama. Simpulan (3) tidak pasti: bisa saja semua penyuka teh juga penyuka kopi. Jadi, banyak simpulan yang pasti benar = 2.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-22",
+    subtest: "penalaran-umum",
+    subtopic: "Kuantitatif",
+    text: "Harga sebuah barang adalah Rp80.000,00. Setelah naik 25% lalu turun 20%, berapa harga akhir barang tersebut?",
+    options: ["Rp80.000,00", "Rp72.000,00", "Rp76.000,00", "Rp84.000,00", "Rp88.000,00"],
+    answerIndex: 0,
+    explanation:
+      "Setelah naik 25%: 80.000 × 1,25 = 100.000. Setelah turun 20%: 100.000 × 0,8 = 80.000. Jadi, harga akhir = Rp80.000,00.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-23",
+    subtest: "penalaran-umum",
+    subtopic: "Kuantitatif",
+    text: "Sebuah kereta menempuh 180 km dalam 2 jam. Jika kecepatannya ditambah 30 km/jam, berapa menit yang dibutuhkan kereta itu untuk menempuh jarak 240 km?",
+    options: ["90", "100", "110", "120", "150"],
+    answerIndex: 3,
+    explanation:
+      "Kecepatan awal = 180 ÷ 2 = 90 km/jam. Kecepatan baru = 90 + 30 = 120 km/jam. Waktu tempuh = 240 ÷ 120 = 2 jam = 120 menit. Jadi, waktu yang dibutuhkan = 120 menit.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pu-24",
+    subtest: "penalaran-umum",
+    subtopic: "Kuantitatif",
+    text: "Perbandingan banyak kelereng Rudi dan Sinta adalah 5 : 7. Jika selisih kelereng mereka adalah 24, berapa jumlah kelereng mereka seluruhnya?",
+    options: ["120", "132", "156", "168", "144"],
+    answerIndex: 4,
+    explanation:
+      "Selisih perbandingan = 7 − 5 = 2 bagian = 24 kelereng, jadi 1 bagian = 12 kelereng. Jumlah perbandingan = 5 + 7 = 12 bagian. Jadi, jumlah kelereng mereka = 12 × 12 = 144.",
+    source: "contoh",
+  },
+  // --- Literasi Bahasa Indonesia (10): lit-16..25 ---
+  {
+    id: "contoh-lit-16",
+    subtest: "literasi",
+    subtopic: "Simpulan",
+    text: "Bacalah paragraf berikut.\n\nSejak 2023, sebuah universitas di Jawa Timur memberikan beasiswa penuh kepada 200 siswa dari daerah terpencil setiap tahun. Data lima tahun menunjukkan tingkat kelulusan penerima beasiswa mencapai 82 persen, jauh di atas rata-rata nasional untuk kelompok serupa. Namun, hampir seperempat penerima mengundurkan diri pada tahun pertama, sebagian besar karena kesulitan mengikuti perkuliahan dan jauh dari keluarga. Menanggapi hal itu, universitas menambahkan program pendampingan: setiap penerima dipasangkan dengan kakak tingkat sebagai mentor dan mendapat bimbingan belajar tambahan. Setelah program itu berjalan dua tahun, angka pengunduran diri pada tahun pertama turun dari 24 persen menjadi 9 persen.\n\nManakah simpulan yang paling tepat berdasarkan bacaan tersebut?",
+    options: [
+      "Beasiswa penuh terbukti gagal karena banyak penerima mengundurkan diri.",
+      "Keberhasilan beasiswa tidak hanya ditentukan oleh dana, tetapi juga oleh pendampingan bagi penerimanya.",
+      "Semua penerima beasiswa pasti lulus jika mendapat mentor.",
+      "Pengunduran diri terjadi karena penerima beasiswa tidak mampu belajar.",
+    ],
+    answerIndex: 1,
+    explanation:
+      "Data menunjukkan kelulusan tinggi (82 persen) tetapi pengunduran diri tahun pertama sempat 24 persen; setelah pendampingan, angka itu turun menjadi 9 persen. Jadi keberhasilan beasiswa bergantung pada dana dan pendampingan, bukan dana saja. Pilihan lain bertentangan dengan data (beasiswa tidak gagal; tidak semua pasti lulus) atau menyimpulkan hal yang tidak dinyatakan teks (penerima tidak mampu belajar).",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-17",
+    subtest: "literasi",
+    subtopic: "Simpulan",
+    text: "Bacalah paragraf berikut.\n\nSebuah perusahaan teknologi di Jakarta menerapkan kerja jarak jauh penuh selama dua tahun. Produktivitas yang diukur dari jumlah tugas selesai naik 12 persen, dan biaya operasional kantor turun hampir separuh. Namun, survei internal menemukan skor kolaborasi antartim turun 20 persen: karyawan mengaku lebih sulit berdiskusi spontan dan lebih lambat menyelesaikan proyek yang membutuhkan banyak pihak. Setelah evaluasi, perusahaan beralih ke model hibrida — tiga hari di kantor, dua hari dari rumah. Enam bulan kemudian, produktivitas tetap di atas level sebelum pandemi, sementara skor kolaborasi kembali mendekati angka semula.\n\nManakah simpulan yang paling tepat berdasarkan bacaan tersebut?",
+    options: [
+      "Kerja jarak jauh penuh adalah model terbaik karena produktivitas naik.",
+      "Kerja di kantor selalu lebih baik daripada kerja dari rumah.",
+      "Biaya operasional adalah satu-satunya ukuran keberhasilan kerja jarak jauh.",
+      "Kerja jarak jauh menaikkan output tetapi melemahkan kolaborasi, sehingga model hibrida lebih seimbang.",
+    ],
+    answerIndex: 3,
+    explanation:
+      "Produktivitas naik 12 persen dan biaya turun, tetapi skor kolaborasi turun 20 persen; model hibrida mengembalikan kolaborasi tanpa menghilangkan kenaikan produktivitas. Jadi simpulan yang tepat adalah model hibrida lebih seimbang. Pilihan lain mengabaikan salah satu sisi data atau menyatakan hal yang tidak ada di teks.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-18",
+    subtest: "literasi",
+    subtopic: "Sikap penulis",
+    text: "Bacalah paragraf berikut.\n\nWacana melarang anak di bawah 16 tahun memakai media sosial kembali menguat setelah sejumlah penelitian mengaitkan penggunaan berlebihan dengan gangguan tidur dan kecemasan. Kekhawatiran itu beralasan: algoritma platform memang dirancang untuk menahan perhatian selama mungkin. Namun, melarang total bukanlah jawaban yang bijak. Media sosial juga menjadi tempat anak belajar berkolaborasi, mengikuti isu publik, dan mengekspresikan diri. Yang lebih dibutuhkan adalah pendidikan literasi digital — mengajari anak membatasi waktu layar, mengenali konten menyesatkan, dan memahami jejak digital — serta peran aktif orang tua. Tanpa itu, larangan hanya akan memindahkan anak ke platform lain yang lebih sulit diawasi.\n\nBagaimana sikap penulis terhadap pelarangan media sosial bagi anak di bawah 16 tahun?",
+    options: [
+      "Menolak pelarangan total dan mengusulkan literasi digital sebagai gantinya.",
+      "Mendukung pelarangan total karena media sosial terbukti merusak.",
+      "Menganggap media sosial tidak berpengaruh apa-apa terhadap anak.",
+      "Menyerahkan sepenuhnya keputusan kepada perusahaan platform.",
+    ],
+    answerIndex: 0,
+    explanation:
+      "Penulis mengakui kekhawatiran itu beralasan, tetapi menyebut pelarangan total 'bukanlah jawaban yang bijak' dan mengusulkan literasi digital plus peran orang tua. Jadi sikapnya menolak pelarangan total dengan alternatif yang jelas — bukan mendukung larangan, bukan netral, dan bukan menyerahkan keputusan kepada platform.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-19",
+    subtest: "literasi",
+    subtopic: "Sikap penulis",
+    text: "Bacalah paragraf berikut.\n\nKecerdasan buatan kini mampu membaca hasil rontgen dan mendeteksi penyakit tertentu dengan akurasi yang menyaingi dokter spesialis. Di rumah sakit yang kekurangan tenaga ahli, teknologi ini mempercepat diagnosis dan menyelamatkan waktu yang berharga. Namun, antusiasme itu perlu diimbangi kehati-hatian: ketika AI salah mendiagnosis, tidak jelas siapa yang bertanggung jawab — pengembang perangkat lunak, rumah sakit, atau dokter yang memakai hasilnya. Selama aturan tanggung jawab ini belum jelas, AI sebaiknya diposisikan sebagai alat bantu kedua, bukan pengganti keputusan dokter. Teknologi boleh maju, tetapi pasien tidak boleh menjadi kelinci percobaan dari sistem yang belum tuntas aturan mainnya.\n\nBagaimana sikap penulis terhadap penggunaan AI dalam diagnosis medis?",
+    options: [
+      "Menolak penggunaan AI dalam dunia medis karena terlalu berisiko.",
+      "Mendukung AI menggantikan dokter sepenuhnya karena akurasinya tinggi.",
+      "Mendukung AI sebagai alat bantu dokter dengan catatan tanggung jawab hukum harus jelas.",
+      "Menganggap akurasi AI sudah cukup sehingga aturan tanggung jawab tidak diperlukan.",
+    ],
+    answerIndex: 2,
+    explanation:
+      "Penulis memuji akurasi dan manfaat AI, tetapi menuntut kejelasan tanggung jawab dan menegaskan AI sebagai alat bantu kedua, bukan pengganti dokter. Jadi sikapnya mendukung dengan catatan — bukan menolak, bukan menggantikan dokter, dan bukan mengabaikan aturan.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-20",
+    subtest: "literasi",
+    subtopic: "Evaluasi argumen",
+    text: "Bacalah paragraf berikut.\n\nKemacetan di kota-kota besar semakin parah setiap tahun. Solusi yang paling masuk akal adalah membangun lebih banyak jalan tol di dalam kota: jalan yang lebih lebar berarti lebih banyak kendaraan dapat lewat dalam waktu yang sama, sehingga antrean berkurang. Kota-kota yang telah menambah ruas jalan memang mencatat penurunan waktu tempuh pada bulan-bulan pertama setelah jalan baru dibuka. Karena itu, pemerintah daerah sebaiknya memprioritaskan anggaran untuk pembangunan jalan baru daripada program lain yang dampaknya tidak langsung terasa.\n\nPernyataan manakah yang, jika benar, paling melemahkan argumen penulis?",
+    options: [
+      "Pembangunan jalan tol membutuhkan biaya yang sangat besar.",
+      "Sebagian pengendara lebih memilih naik motor daripada mobil.",
+      "Kemacetan membuat pengendara stres dan boros bahan bakar.",
+      "Waktu tempuh di beberapa kota sempat turun setelah jalan baru dibuka.",
+      "Di kota yang menambah ruas tol, kemacetan kembali seperti semula dalam tiga tahun karena jumlah kendaraan ikut bertambah.",
+    ],
+    answerIndex: 4,
+    explanation:
+      "Argumen penulis bertumpu pada klaim bahwa jalan yang lebih lebar mengurangi antrean secara bertahan. Jika kemacetan kembali dalam tiga tahun karena kendaraan ikut bertambah, mekanisme yang diklaim penulis runtuh — inilah yang paling melemahkan argumen. Pilihan lain membahas biaya, selera, atau dampak kemacetan yang tidak menyentuh klaimnya, atau justru mendukung bukti penulis.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-21",
+    subtest: "literasi",
+    subtopic: "Evaluasi argumen",
+    text: "Bacalah paragraf berikut.\n\nSekolah sebaiknya mewajibkan semua siswa mengikuti program musik, karena musik terbukti meningkatkan kemampuan matematika. Sebuah penelitian pada 500 siswa menunjukkan bahwa siswa yang mengikuti les musik selama dua tahun mendapat nilai matematika rata-rata 15 poin lebih tinggi daripada siswa yang tidak mengikuti les musik. Para peneliti menjelaskan bahwa berlatih musik melatih pola berpikir yang sama dengan yang dibutuhkan untuk memecahkan soal matematika: mengenali pola, menghafal urutan, dan membagi perhatian. Karena itu, alokasi dana untuk program musik adalah investasi langsung bagi prestasi matematika siswa.\n\nPernyataan manakah yang, jika benar, paling melemahkan argumen penulis?",
+    options: [
+      "Sebagian siswa lebih menyukai olahraga daripada musik.",
+      "Siswa yang mengikuti les musik umumnya berasal dari keluarga yang juga membiayai les matematika privat bagi anaknya.",
+      "Nilai matematika siswa secara nasional naik dalam lima tahun terakhir.",
+      "Beberapa sekolah tidak memiliki alat musik yang cukup.",
+    ],
+    answerIndex: 1,
+    explanation:
+      "Jika kelompok musik juga mendapat les privat matematika, selisih 15 poin bisa dijelaskan oleh les privat itu — bukan oleh musik. Ini memutus hubungan sebab-akibat yang diklaim penulis. Pilihan lain membahas selera, tren nasional, atau keterbatasan alat yang tidak menyentuh klaim kausalnya.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-22",
+    subtest: "literasi",
+    subtopic: "Struktur teks",
+    text: "Bacalah paragraf berikut.\n\nSungai-sungai di kawasan perkotaan kini dipenuhi sampah plastik. Setiap musim hujan, tumpukan botol dan kantong plastik menyumbat saluran air dan memperparah banjir. Data dinas lingkungan hidup mencatat bahwa lebih dari separuh sampah yang mencemari sungai berasal dari rumah tangga di sekitar bantaran, bukan dari industri besar.\n\nMenghadapi masalah ini, sejumlah kelurahan mulai mengoperasikan bank sampah: warga memilah sampah plastik dari rumah dan menukarkannya dengan uang atau kebutuhan pokok. Di kelurahan yang programnya berjalan dua tahun, volume sampah plastik yang dibuang ke sungai turun 40 persen. Keberhasilan ini menunjukkan bahwa solusi tidak selalu harus berupa proyek besar — perubahan perilaku warga yang didukung insentif sederhana dapat mengurangi masalah yang tampak mustahil diatasi.\n\nApa fungsi paragraf kedua terhadap paragraf pertama?",
+    options: [
+      "Menyangkal seluruh isi paragraf pertama.",
+      "Memberikan contoh yang bertentangan dengan paragraf pertama.",
+      "Mengulang kembali masalah yang sudah dijelaskan paragraf pertama.",
+      "Menawarkan solusi atas masalah yang diuraikan paragraf pertama.",
+    ],
+    answerIndex: 3,
+    explanation:
+      "Paragraf pertama menguraikan masalah (sampah plastik dari rumah tangga mencemari sungai), paragraf kedua menyajikan bank sampah sebagai jawaban atas masalah itu, lengkap dengan hasil turun 40 persen. Jadi fungsinya menawarkan solusi — bukan menyangkal, bukan contoh tandingan, dan bukan pengulangan.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-23",
+    subtest: "literasi",
+    subtopic: "Struktur teks",
+    text: "Bacalah paragraf berikut.\n\nMembaca novel disebut-sebut sebagai latihan empati: dengan mengikuti pikiran tokoh, pembaca belajar memahami perasaan orang lain. Sejumlah penelitian awal mendukung gagasan ini — pembaca fiksi mencetak skor lebih tinggi pada tes membaca emosi dibandingkan mereka yang jarang membaca.\n\nNamun, penelitian lanjutan dengan sampel yang lebih besar menemukan bahwa keunggulan itu kecil dan tidak bertahan lama: beberapa minggu setelah membaca, skor kedua kelompok kembali sama. Para peneliti menduga efeknya berasal dari suasana hati sesaat setelah membaca, bukan dari perubahan kemampuan empati yang mendalam.\n\nDengan demikian, membaca fiksi mungkin memberi dorongan empati sesaat, tetapi menjadikannya sebagai program pelatihan empati membutuhkan bukti yang jauh lebih kuat daripada yang dimiliki saat ini.\n\nBagaimana hubungan paragraf kedua dengan paragraf pertama?",
+    options: [
+      "Membatasi klaim paragraf pertama dengan temuan yang berlawanan.",
+      "Memperkuat klaim paragraf pertama dengan bukti tambahan.",
+      "Memberikan contoh yang mendukung klaim paragraf pertama.",
+      "Menyimpulkan seluruh isi paragraf pertama.",
+    ],
+    answerIndex: 0,
+    explanation:
+      "Paragraf pertama menyajikan klaim dan bukti awal yang mendukungnya; paragraf kedua menyajikan penelitian lanjutan yang menunjukkan efeknya kecil dan sementara — membatasi klaim itu. Kesimpulan baru justru ada di paragraf ketiga, jadi paragraf kedua bukan penguat, contoh pendukung, atau simpulan.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-24",
+    subtest: "literasi",
+    subtopic: "Inferensi",
+    text: "Bacalah paragraf berikut.\n\nKunjungan fisik ke perpustakaan daerah turun 30 persen dalam lima tahun terakhir. Di saat yang sama, peminjaman buku elektronik naik 200 persen dan ruang baca tetap penuh setiap musim ujian. Pustakawan mencatat bahwa pengunjung kini lebih banyak datang untuk belajar bersama dan mengikuti kegiatan komunitas — klub baca, lokakarya menulis, dan kelas keterampilan digital — daripada sekadar meminjam buku. Anggaran pengadaan buku cetak memang dipangkas, tetapi dana dialihkan untuk memperluas koleksi digital dan memperbaiki ruang belajar.\n\nManakah yang dapat disimpulkan dari bacaan tersebut?",
+    options: [
+      "Perpustakaan daerah akan segera ditutup karena pengunjung berkurang.",
+      "Masyarakat sudah berhenti membaca buku sama sekali.",
+      "Masyarakat tidak meninggalkan perpustakaan; mereka mengubah cara memanfaatkannya.",
+      "Buku elektronik telah membunuh minat baca masyarakat.",
+    ],
+    answerIndex: 2,
+    explanation:
+      "Kunjungan turun tetapi peminjaman digital naik tajam dan ruang baca penuh saat ujian — jadi yang berubah adalah cara memanfaatkan perpustakaan, bukan minat terhadapnya. Pilihan lain bertentangan dengan data teks (perpustakaan justru memperluas layanan digital; minat baca terlihat dari peminjaman elektronik).",
+    source: "contoh",
+  },
+  {
+    id: "contoh-lit-25",
+    subtest: "literasi",
+    subtopic: "Inferensi",
+    text: "Bacalah paragraf berikut.\n\nDalam sepuluh tahun terakhir, hampir separuh pemuda Desa Sukamaju merantau ke kota untuk bekerja. Sekilas, desa itu tampak kehilangan generasi mudanya: sawah digarap oleh orang tua, dan sekolah dasar kekurangan murid. Namun, uang yang dikirim para perantau membiayai renovasi puluhan rumah, pembangunan jalan desa, dan beasiswa bagi adik-adik mereka. Beberapa perantau bahkan kembali setelah lima tahun dan membuka usaha — bengkel, toko kelontong, dan jasa pengiriman — yang mempekerjakan warga setempat. Kepala desa menilai arus pergi-pulang ini justru menghidupkan ekonomi desa yang sebelumnya hanya bergantung pada hasil panen.\n\nManakah yang dapat disimpulkan dari bacaan tersebut?",
+    options: [
+      "Semua pemuda yang merantau pasti akan kembali ke desa.",
+      "Desa Sukamaju kini tidak lagi memiliki penduduk muda.",
+      "Uang kiriman perantau hanya dipakai untuk kebutuhan sehari-hari.",
+      "Hasil panen adalah satu-satunya sumber ekonomi desa saat ini.",
+      "Migrasi tidak selalu menguras desa; ia dapat menjadi modal bagi pembangunan desa.",
+    ],
+    answerIndex: 4,
+    explanation:
+      "Teks menunjukkan sisi lain migrasi: kiriman uang membangun desa dan sebagian perantau kembali membuka usaha. Jadi migrasi dapat menjadi modal pembangunan, bukan sekadar pengurasan. Pilihan lain melebih-lebihkan ('semua pasti kembali'), bertentangan dengan teks (desa masih punya pemuda yang kembali; kiriman dipakai untuk pembangunan), atau mengabaikan perubahan ekonomi desa.",
+    source: "contoh",
+  },
+  // --- Pengetahuan dan Pemahaman Umum (10): ppu-15..24 ---
+  {
+    id: "contoh-ppu-15",
+    subtest: "pengetahuan-umum",
+    subtopic: "Leksikal",
+    text: "Dalam kalimat 'Keputusan itu diambil secara arbitrer tanpa mendengarkan masukan dari anggota tim,' kata 'arbitrer' bermakna ...",
+    options: ["sewenang-wenang", "adil dan bijaksana", "teratur dan sistematis", "berdasarkan musyawarah"],
+    answerIndex: 0,
+    explanation:
+      "'Arbitrer' berarti berdasarkan kehendak sendiri tanpa aturan yang jelas, atau sewenang-wenang. 'Adil', 'teratur', dan 'musyawarah' justru berlawanan atau tidak terkait dengan makna kata itu.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-16",
+    subtest: "pengetahuan-umum",
+    subtopic: "Leksikal",
+    text: "Antonim kata 'inklusif' adalah ...",
+    options: ["terbuka", "ramah", "eksklusif", "luas"],
+    answerIndex: 2,
+    explanation:
+      "'Inklusif' berarti terbuka dan merangkul semua pihak, sehingga antonimnya adalah 'eksklusif' yang berarti tertutup dan terbatas pada kelompok tertentu. 'Terbuka', 'ramah', dan 'luas' justru mendekati sinonimnya.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-17",
+    subtest: "pengetahuan-umum",
+    subtopic: "Leksikal",
+    text: "Dalam kalimat 'Sebagai pemimpin yang pragmatis, ia lebih mengutamakan solusi yang bisa segera diterapkan daripada teori yang sempurna,' kata 'pragmatis' bermakna ...",
+    options: [
+      "berpegang teguh pada teori",
+      "bersifat khayalan",
+      "mementingkan keindahan",
+      "mementingkan penampilan",
+      "mengutamakan hasil yang praktis",
+    ],
+    answerIndex: 4,
+    explanation:
+      "'Pragmatis' berarti mengutamakan hal yang praktis dan dapat diterapkan, bukan teori atau keindahan. Pilihan lain bertentangan dengan makna kata itu.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-18",
+    subtest: "pengetahuan-umum",
+    subtopic: "Leksikal",
+    text: "Dalam kalimat 'Degradasi lahan di kawasan itu membuat hasil panen menurun dari tahun ke tahun,' kata 'degradasi' bermakna ...",
+    options: ["peningkatan tajam", "penurunan mutu", "perubahan bentuk", "pemulihan total"],
+    answerIndex: 1,
+    explanation:
+      "'Degradasi' berarti penurunan mutu atau kualitas. Kalimat itu sendiri menunjukkan tandanya: hasil panen menurun. 'Peningkatan' dan 'pemulihan' berlawanan, sedangkan 'perubahan bentuk' tidak menyiratkan penurunan mutu.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-19",
+    subtest: "pengetahuan-umum",
+    subtopic: "Informasi umum",
+    text: "Ibu kota Provinsi Kalimantan Utara adalah ...",
+    options: ["Tarakan", "Balikpapan", "Samarinda", "Tanjung Selor"],
+    answerIndex: 3,
+    explanation:
+      "Tanjung Selor di Kabupaten Bulungan adalah ibu kota Kalimantan Utara sejak provinsi itu dibentuk. Tarakan adalah kota di provinsi yang sama, sedangkan Balikpapan dan Samarinda berada di Kalimantan Timur.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-20",
+    subtest: "pengetahuan-umum",
+    subtopic: "Informasi umum",
+    text: "Sungai terpanjang di Pulau Sumatra adalah ...",
+    options: ["Batanghari", "Musi", "Kampar", "Indragiri"],
+    answerIndex: 0,
+    explanation:
+      "Batanghari (sekitar 800 km) adalah sungai terpanjang di Sumatra, lebih panjang daripada Musi (sekitar 750 km). Kampar dan Indragiri lebih pendek daripada keduanya.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-21",
+    subtest: "pengetahuan-umum",
+    subtopic: "Informasi umum",
+    text: "Organisasi kerja sama ekonomi kawasan Asia-Pasifik adalah ...",
+    options: ["ASEAN", "OPEC", "APEC", "UNESCO"],
+    answerIndex: 2,
+    explanation:
+      "APEC (Asia-Pacific Economic Cooperation) adalah forum kerja sama ekonomi kawasan Asia-Pasifik. ASEAN adalah kerja sama Asia Tenggara, OPEC organisasi negara pengekspor minyak, dan UNESCO badan PBB untuk pendidikan dan kebudayaan.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-22",
+    subtest: "pengetahuan-umum",
+    subtopic: "Pengetahuan umum",
+    text: "Tokoh yang dikenal sebagai perumus teori evolusi melalui seleksi alam adalah ...",
+    options: [
+      "Gregor Mendel",
+      "Jean-Baptiste Lamarck",
+      "Thomas Malthus",
+      "Alfred Russel Wallace",
+      "Charles Darwin",
+    ],
+    answerIndex: 4,
+    explanation:
+      "Charles Darwin merumuskan teori evolusi melalui seleksi alam dalam buku 'On the Origin of Species' (1859). Mendel dikenal sebagai bapak genetika, Lamarck mengajukan teori pewarisan sifat yang diperoleh, Malthus dikenal dari teori kependudukan, dan Wallace turut menemukan seleksi alam tetapi Darwin-lah yang merumuskan teorinya secara sistematis.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-23",
+    subtest: "pengetahuan-umum",
+    subtopic: "Pengetahuan umum",
+    text: "Konferensi Asia-Afrika diselenggarakan di Bandung pada tahun ...",
+    options: ["1945", "1955", "1950", "1960"],
+    answerIndex: 1,
+    explanation:
+      "Konferensi Asia-Afrika di Bandung berlangsung pada 18–24 April 1955 dan melahirkan Dasasila Bandung. Tahun 1945 adalah tahun proklamasi kemerdekaan Indonesia, bukan tahun konferensi ini.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-ppu-24",
+    subtest: "pengetahuan-umum",
+    subtopic: "Pengetahuan umum",
+    text: "Novel 'Laskar Pelangi' ditulis oleh ...",
+    options: ["Tere Liye", "Pramoedya Ananta Toer", "Dee Lestari", "Andrea Hirata"],
+    answerIndex: 3,
+    explanation:
+      "'Laskar Pelangi' (2005) adalah novel karya Andrea Hirata. Tere Liye menulis 'Hafalan Shalat Delisa', Pramoedya Ananta Toer menulis 'Bumi Manusia', dan Dee Lestari menulis 'Supernova'.",
+    source: "contoh",
+  },
+  // --- Pemahaman Bacaan dan Menulis (10): pbm-15..24 ---
+  {
+    id: "contoh-pbm-15",
+    subtest: "bacaan-menulis",
+    subtopic: "Pemilihan gagasan",
+    text: "Bacalah paragraf berikut.\n\n(1) Terumbu karang di perairan Indonesia rusak parah akibat penangkapan ikan dengan bahan peledak dan perubahan suhu laut. (2) Sebuah program restorasi di Bali menanam kembali fragmen karang pada kerangka baja yang dialiri listrik ringan, dan dalam tiga tahun tutupan karang hidup di lokasi itu naik dari 5 persen menjadi 40 persen. (3) Keberhasilan program ini melibatkan nelayan setempat yang dilatih menjadi penjaga terumbu dan mendapat penghasilan dari wisata selam. (4) Para ahli menilai model ini dapat diterapkan di daerah lain karena biayanya relatif rendah dan melibatkan masyarakat.\n\nManakah yang merupakan gagasan utama paragraf tersebut?",
+    options: [
+      "Terumbu karang di Indonesia rusak parah.",
+      "Nelayan setempat dilatih menjadi penjaga terumbu.",
+      "Program restorasi terumbu karang berbasis masyarakat berhasil memulihkan karang yang rusak.",
+      "Wisata selam memberi penghasilan bagi nelayan.",
+    ],
+    answerIndex: 2,
+    explanation:
+      "Paragraf itu membangun satu gagasan: program restorasi yang melibatkan masyarakat berhasil memulihkan karang (tutupan naik dari 5 persen menjadi 40 persen). Kerusakan karang, pelatihan nelayan, dan wisata selam adalah rincian pendukung, bukan gagasan utamanya.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-16",
+    subtest: "bacaan-menulis",
+    subtopic: "Pemilihan gagasan",
+    text: "Bacalah paragraf berikut.\n\nPasar tradisional di banyak kota mulai sepi. Pedagang mengeluhkan pembeli yang beralih ke toko daring karena harga lebih murah dan barang diantar ke rumah. Namun, pasar tradisional masih memiliki keunggulan yang sulit ditiru: pembeli dapat menawar, memeriksa kesegaran bahan secara langsung, dan menjalin hubungan sosial dengan pedagang langganan. Sejumlah pasar mulai berbenah dengan menyediakan pembayaran digital dan layanan antar, menggabungkan kelebihan pasar lama dan toko daring. Upaya ini menunjukkan bahwa pasar tradisional tidak harus kalah — ia hanya perlu beradaptasi.\n\nJudul yang paling tepat untuk bacaan tersebut adalah ...",
+    options: [
+      "Kekalahan Pasar Tradisional",
+      "Harga Murah di Toko Daring",
+      "Cara Menawar di Pasar",
+      "Tawar-menawar di Era Digital",
+      "Pasar Tradisional Beradaptasi di Tengah Persaingan Daring",
+    ],
+    answerIndex: 4,
+    explanation:
+      "Bacaan membahas pasar tradisional yang terdesak toko daring lalu beradaptasi (pembayaran digital, layanan antar). Judul terakhir mencakup seluruh isi; judul lain hanya menyorot satu sisi atau bertentangan dengan isi (pasar tidak kalah).",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-17",
+    subtest: "bacaan-menulis",
+    subtopic: "Pemilihan gagasan",
+    text: "Bacalah paragraf berikut.\n\n(1) Tidur yang cukup membantu otak menyimpan pelajaran ke dalam ingatan jangka panjang. (2) Selama tidur, otak mengulang kembali apa yang dipelajari pada siang hari dan memindahkannya ke penyimpanan jangka panjang. (3) Siswa yang tidur delapan jam setelah belajar mengingat lebih banyak kata daripada siswa yang begadang semalaman. (4) Kopi adalah minuman yang paling banyak dikonsumsi mahasiswa saat begadang. (5) Karena itu, tidur setelah belajar sama pentingnya dengan belajar itu sendiri.\n\nKalimat manakah yang tidak mendukung gagasan utama paragraf tersebut?",
+    options: ["Kalimat (1)", "Kalimat (4)", "Kalimat (2)", "Kalimat (3)", "Kalimat (5)"],
+    answerIndex: 1,
+    explanation:
+      "Gagasan utama paragraf adalah tidur membantu menyimpan pelajaran. Kalimat (4) tentang kopi adalah informasi yang tidak terkait dengan gagasan itu; kalimat lain semuanya menjelaskan atau membuktikan peran tidur bagi ingatan.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-18",
+    subtest: "bacaan-menulis",
+    subtopic: "Pemilihan gagasan",
+    text: "Bacalah paragraf berikut.\n\nPemerintah mendorong penggunaan kendaraan listrik dengan insentif pajak dan pembangunan stasiun pengisian daya. Namun, adopsi masih lambat: harga kendaraan listrik tetap lebih mahal daripada kendaraan berbahan bakar minyak, dan stasiun pengisian belum merata di luar kota besar. Survei menunjukkan calon pembeli paling mengkhawatirkan jarak tempuh dan ketersediaan bengkel. Para pengamat menilai insentif saja tidak cukup; yang dibutuhkan adalah harga yang terjangkau dan infrastruktur yang merata agar kendaraan listrik benar-benar menjadi pilihan utama masyarakat.\n\nManakah yang merupakan gagasan utama paragraf tersebut?",
+    options: [
+      "Pemerintah memberikan insentif pajak untuk kendaraan listrik.",
+      "Stasiun pengisian daya belum merata di luar kota besar.",
+      "Harga kendaraan listrik lebih mahal daripada kendaraan biasa.",
+      "Adopsi kendaraan listrik masih lambat karena harga dan infrastruktur belum memadai, sehingga insentif saja tidak cukup.",
+    ],
+    answerIndex: 3,
+    explanation:
+      "Paragraf itu berargumen bahwa adopsi kendaraan listrik terhambat harga dan infrastruktur, dan insentif saja tidak cukup. Tiga pilihan lain adalah rincian pendukung, bukan gagasan utamanya.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-19",
+    subtest: "bacaan-menulis",
+    subtopic: "Penataan gagasan",
+    text: "Susunlah kalimat-kalimat berikut menjadi sebuah paragraf prosedur yang padu.\n\n(A) Siapkan wadah kompos dan letakkan di tempat yang teduh.\n(B) Masukkan sisa sayuran dan daun kering secara berlapis ke dalam wadah.\n(C) Siram lapisan itu secukupnya agar tetap lembap, lalu tutup wadah.\n(D) Aduk isi wadah seminggu sekali agar udara masuk dan proses berjalan merata.\n(E) Setelah dua bulan, kompos yang sudah berwarna gelap dan tidak berbau dapat dipakai untuk tanaman.\n\nUrutan kalimat yang tepat adalah ...",
+    options: ["A-B-C-D-E", "B-A-C-D-E", "A-C-B-D-E", "A-B-D-C-E", "B-C-A-D-E"],
+    answerIndex: 0,
+    explanation:
+      "Urutan yang logis: menyiapkan wadah (A), memasukkan bahan (B), menyiram dan menutup (C), mengaduk berkala (D), lalu memakai kompos yang sudah jadi (E). Pilihan lain menukar langkah yang saling bergantung — bahan tidak bisa dimasukkan sebelum wadah disiapkan, dan pengadukan tidak bisa dilakukan sebelum bahan disiram dan ditutup.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-20",
+    subtest: "bacaan-menulis",
+    subtopic: "Penataan gagasan",
+    text: "Susunlah kalimat-kalimat berikut menjadi sebuah paragraf yang padu.\n\n(A) Mula-mula warga hanya berjalan kaki atau naik sepeda ke pasar.\n(B) Pada 1990-an, ojek motor mulai beroperasi dan mempersingkat perjalanan.\n(C) Pada 2000-an, jalan desa diaspal sehingga kendaraan roda empat bisa masuk.\n(D) Sejak saat itu, angkutan desa melayani rute ke kota setiap hari.\n(E) Kini, warga dapat memesan ojek lewat aplikasi ponsel.\n\nUrutan kalimat yang tepat adalah ...",
+    options: ["A-C-B-D-E", "B-A-C-D-E", "A-B-C-D-E", "A-B-D-C-E", "C-A-B-D-E"],
+    answerIndex: 2,
+    explanation:
+      "Penanda waktu memaksa urutan: 'mula-mula' (A), '1990-an' (B), '2000-an' (C), 'sejak saat itu' (D), 'kini' (E). Pilihan lain menukar urutan kronologis yang ditandai tahun dan kata penunjuk waktu.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-21",
+    subtest: "bacaan-menulis",
+    subtopic: "Penataan gagasan",
+    text: "Susunlah kalimat-kalimat berikut menjadi sebuah paragraf sebab-akibat yang padu.\n\n(A) Hutan di hulu ditebang untuk membuka lahan pertanian.\n(B) Tanpa akar pohon, tanah kehilangan penahannya dan mudah tererosi saat hujan.\n(C) Tanah yang tererosi terbawa aliran sungai dan mengendap di dasar sungai.\n(D) Endapan itu mendangkalkan sungai sehingga daya tampungnya berkurang.\n(E) Ketika hujan deras tiba, air meluap dan membanjiri permukiman di sekitar sungai.\n\nUrutan kalimat yang tepat adalah ...",
+    options: ["A-B-C-E-D", "A-C-B-D-E", "B-A-C-D-E", "A-B-D-C-E", "A-B-C-D-E"],
+    answerIndex: 4,
+    explanation:
+      "Rantai sebab-akibat: penebangan (A) → erosi (B) → tanah terbawa sungai (C) → sungai dangkal (D) → banjir (E). Setiap langkah adalah akibat langkah sebelumnya, jadi urutannya tidak bisa ditukar.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-22",
+    subtest: "bacaan-menulis",
+    subtopic: "Perbaikan gagasan",
+    text: "Kalimat berikut mengandung kesalahan. Manakah kalimat yang sudah benar?\n\nBuku-buku itu sangat bermanfaat sekali bagi para siswa-siswa.",
+    options: [
+      "Buku-buku itu sangat bermanfaat sekali bagi para siswa-siswa.",
+      "Buku-buku itu sangat bermanfaat bagi para siswa.",
+      "Buku-buku itu bermanfaat sekali bagi para siswa-siswa.",
+      "Buku itu sangat bermanfaat sekali bagi siswa.",
+      "Buku-buku itu sangat bermanfaat sekali bagi para siswa.",
+    ],
+    answerIndex: 1,
+    explanation:
+      "Kalimat itu mengandung dua kesalahan: 'sangat ... sekali' (penguat ganda) dan 'para siswa-siswa' (jamak ganda). Hanya opsi kedua menghilangkan keduanya: 'sangat bermanfaat' tanpa 'sekali', dan 'para siswa' tanpa '-siswa'. Opsi lain mempertahankan satu atau kedua kesalahan itu.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-23",
+    subtest: "bacaan-menulis",
+    subtopic: "Perbaikan gagasan",
+    text: "Kalimat berikut mengandung kesalahan. Manakah kalimat yang sudah benar?\n\nAgar supaya acara berjalan lancar, maka panitia menyiapkan segalanya dan juga mengundang banyak tamu.",
+    options: [
+      "Agar supaya acara berjalan lancar, maka panitia menyiapkan segalanya dan juga mengundang banyak tamu.",
+      "Agar supaya acara berjalan lancar, panitia menyiapkan segalanya dan mengundang banyak tamu.",
+      "Agar acara berjalan lancar, maka panitia menyiapkan segalanya dan juga mengundang banyak tamu.",
+      "Agar acara berjalan lancar, panitia menyiapkan segalanya dan mengundang banyak tamu.",
+      "Supaya acara berjalan lancar, maka panitia menyiapkan segalanya dan mengundang banyak tamu.",
+    ],
+    answerIndex: 3,
+    explanation:
+      "Kalimat itu mengandung tiga kesalahan: 'agar supaya' (kata penghubung ganda), 'maka' setelah anak kalimat tujuan, dan 'dan juga' (penghubung ganda). Hanya opsi keempat menghilangkan ketiganya. Opsi lain mempertahankan satu atau lebih kesalahan itu.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-pbm-24",
+    subtest: "bacaan-menulis",
+    subtopic: "Perbaikan gagasan",
+    text: "Kalimat berikut mengandung kesalahan. Manakah kalimat yang sudah benar?\n\nBuku ini sangat bagus sekali, sehingga banyak orang yang membacanya dan juga merekomendasikannya.",
+    options: [
+      "Buku ini sangat bagus, sehingga banyak orang yang membacanya dan merekomendasikannya.",
+      "Buku ini sangat bagus sekali, sehingga banyak orang yang membacanya dan juga merekomendasikannya.",
+      "Buku ini bagus sekali, sehingga banyak orang yang membacanya dan juga merekomendasikannya.",
+      "Buku ini sangat bagus sekali, sehingga banyak orang yang membacanya dan merekomendasikannya.",
+      "Buku ini sangat bagus sekali, sehingga banyak orang membacanya dan juga merekomendasikannya.",
+    ],
+    answerIndex: 0,
+    explanation:
+      "Kalimat itu mengandung dua kesalahan: 'sangat bagus sekali' (penguat ganda) dan 'dan juga' (penghubung ganda). Hanya opsi pertama menghilangkan keduanya. Opsi lain mempertahankan satu atau kedua kesalahan itu.",
+    source: "contoh",
+  },
+  // --- Literasi dalam Bahasa Inggris (10): le-15..24 ---
+  {
+    id: "contoh-le-15",
+    subtest: "literasi-inggris",
+    subtopic: "Main idea",
+    text: "Read the passage below.\n\nIn many crowded cities, empty lots between apartment blocks are being turned into community gardens. Residents grow vegetables, herbs, and flowers together, sharing both the work and the harvest. These gardens do more than provide fresh food: they give neighbors a reason to meet, teach children where food comes from, and cool the surrounding streets on hot days. A study in three Indonesian cities found that neighborhoods with a community garden reported stronger social ties and less household waste, because gardeners composted their kitchen scraps. The gardens are not a solution to every urban problem, but they show how a small piece of shared land can change the way people live together in a city.\n\nWhat is the main idea of the passage?",
+    options: [
+      "Cities should build more apartment blocks.",
+      "Children need to learn where food comes from.",
+      "Community gardens are expensive to maintain.",
+      "Community gardens improve food, social ties, and the environment in crowded cities.",
+    ],
+    answerIndex: 3,
+    explanation:
+      "Bacaan berargumen bahwa kebun komunitas memberi makanan segar, mempererat hubungan warga, dan mendinginkan lingkungan — jadi gagasan utamanya adalah manfaat menyeluruh kebun itu. Pilihan lain hanya menyorot satu rincian atau menyatakan hal yang tidak ada di teks.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-16",
+    subtest: "literasi-inggris",
+    subtopic: "Main idea",
+    text: "Read the passage below.\n\nHoneybees do not have maps, yet a foraging bee can tell her sisters exactly where to find flowers. When she returns to the hive, she performs a dance on the honeycomb: the angle of her run shows the direction of the flowers relative to the sun, and the length of the run shows the distance. Other bees watch the dance, then fly straight to the food source without ever having visited it. Scientists who studied this dance found that bees can even adjust for the movement of the sun during the day. The waggle dance is one of the most remarkable communication systems in the animal kingdom — a language made of movement, not sound.\n\nWhat is the main idea of the passage?",
+    options: [
+      "Bees cannot find food without a map.",
+      "Honeybees communicate the location of food through a dance.",
+      "The sun moves during the day.",
+      "Scientists study bees in laboratories.",
+    ],
+    answerIndex: 1,
+    explanation:
+      "Bacaan menjelaskan bahwa lebah menyampaikan arah dan jarak bunga melalui tarian — itulah gagasan utamanya. Pilihan lain bertentangan dengan isi (lebah tidak butuh peta) atau hanya rincian kecil.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-17",
+    subtest: "literasi-inggris",
+    subtopic: "Main idea",
+    text: "Read the passage below.\n\nWhen schools in rural areas began offering online classes, many people expected the results to be poor: internet connections were slow and few families owned a computer. The results surprised everyone. Attendance rose because students no longer had to walk two hours to school, and recorded lessons let them repeat difficult material at home. Teachers also found that shy students asked more questions in chat than they ever did in class. Problems remain — unstable signals and shared phones — but the experiment showed that distance learning, when combined with weekly face-to-face meetings, can work even in places with limited infrastructure.\n\nWhat is the main idea of the passage?",
+    options: [
+      "Online classes are useless in rural areas.",
+      "Rural students walk two hours to school every day.",
+      "Teachers prefer online classes to face-to-face teaching.",
+      "Shy students never ask questions in class.",
+      "Distance learning can succeed in rural areas despite limited infrastructure.",
+    ],
+    answerIndex: 4,
+    explanation:
+      "Bacaan menunjukkan pembelajaran jarak jauh di desa berhasil (kehadiran naik, siswa pemalu lebih aktif) meski infrastruktur terbatas, apalagi bila dipadukan dengan pertemuan tatap muka. Pilihan lain bertentangan dengan isi atau hanya rincian kecil.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-18",
+    subtest: "literasi-inggris",
+    subtopic: "Inference",
+    text: "Read the passage below.\n\nFor twenty years, Pak Darman fished the same waters off the north coast. He began to notice that some fish he used to catch every season were becoming rare, while other species appeared in larger numbers. Instead of guessing, he started writing everything in a notebook: the date, the weather, the type and weight of each catch. After five years, his notebooks showed a clear pattern — the water was getting warmer, and the fish were moving to deeper, cooler areas. When researchers from a university visited his village, they used his records to confirm what their instruments had only begun to measure. Pak Darman's notebooks became part of a scientific study on changing seas.\n\nWhat can be inferred from the passage?",
+    options: [
+      "Careful observation over time can reveal patterns that instruments miss at first.",
+      "Fishermen should stop fishing when fish become rare.",
+      "The sea is too warm for any fish to survive.",
+      "University researchers taught Pak Darman how to fish.",
+    ],
+    answerIndex: 0,
+    explanation:
+      "Catatan lima tahun Pak Darman menunjukkan pola perubahan suhu dan pergerakan ikan yang kemudian dikonfirmasi peneliti — jadi pengamatan tekun dalam jangka panjang dapat mengungkap pola. Pilihan lain bertentangan dengan teks (ia tidak berhenti melaut; ikan tidak punah; penelitilah yang memakai catatannya, bukan mengajarinya).",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-19",
+    subtest: "literasi-inggris",
+    subtopic: "Inference",
+    text: "Read the passage below.\n\nThe small town library in Wonosari used to close at five in the afternoon. During exam season, however, students asked to stay longer because many of them had no quiet place to study at home. The librarian agreed to open until nine, and within a week the reading room was full every evening. Students brought their own lamps when the old lights flickered, shared textbooks, and quizzed each other before the exams. When the exam results came out, the school reported its best scores in ten years. The library did not buy new books or hire new staff — it simply stayed open when students needed it most.\n\nWhat can be inferred from the passage?",
+    options: [
+      "The library bought many new books for the exams.",
+      "The school hired new teachers before the exams.",
+      "A quiet place to study can make a real difference to students' results.",
+      "Students prefer studying at home to studying in the library.",
+    ],
+    answerIndex: 2,
+    explanation:
+      "Perpustakaan hanya memperpanjang jam buka — tanpa buku baru atau staf baru — dan nilai ujian menjadi yang terbaik dalam sepuluh tahun. Jadi tempat belajar yang tenang berpengaruh nyata. Pilihan lain bertentangan dengan teks.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-20",
+    subtest: "literasi-inggris",
+    subtopic: "Inference",
+    text: "Read the passage below.\n\nThe old wooden bridge over the Kali Putih river had been broken for three years. Cars had to take a long detour, and children crossed the river by boat to reach school. The village government said there was no budget to repair it. Then a group of young villagers decided to fix it themselves: they collected donations, bought timber from a neighboring village, and worked every weekend for two months. When the bridge reopened, the whole village celebrated — and the district government, embarrassed by the villagers' effort, finally allocated funds to maintain it. The bridge still stands today, with a small plaque that reads: 'Built by the people, for the people.'\n\nWhat can be inferred from the passage?",
+    options: [
+      "The village government repaired the bridge quickly.",
+      "The children stopped going to school.",
+      "The villagers waited for the government to act.",
+      "Community initiative can achieve what official budgets cannot.",
+    ],
+    answerIndex: 3,
+    explanation:
+      "Warga memperbaiki sendiri jembatan yang tiga tahun dibiarkan rusak, dan pemerintah baru bertindak setelah itu. Jadi inisiatif warga dapat mewujudkan hal yang anggaran resmi tidak wujudkan. Pilihan lain bertentangan dengan teks.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-21",
+    subtest: "literasi-inggris",
+    subtopic: "Vocabulary in context",
+    text: "Read the passage below.\n\nThe bamboo house in the village of Penglipuran has stood for more than eighty years. Its walls are woven from bamboo strips, its roof is made of palm fiber, and its floor is raised on wooden posts. When a strong storm hit the island in 2019, many modern houses lost their roofs, but the bamboo house remained sturdy: its flexible frame bent with the wind instead of breaking. The villagers say the secret is not the material alone, but the way the house was built — with joints that move slightly, allowing the whole structure to sway. Engineers who studied the house now recommend similar flexible joints for buildings in earthquake-prone areas.\n\nIn the passage, the word 'sturdy' is closest in meaning to ...",
+    options: [
+      "very tall",
+      "strong and not easily broken",
+      "beautifully decorated",
+      "newly painted",
+    ],
+    answerIndex: 1,
+    explanation:
+      "Konteksnya: rumah bambu itu tetap kokoh saat badai, rangkanya melentur mengikuti angin alih-alih patah. Jadi 'sturdy' berarti kuat dan tidak mudah rusak. Pilihan lain tidak sesuai konteks.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-22",
+    subtest: "literasi-inggris",
+    subtopic: "Vocabulary in context",
+    text: "Read the passage below.\n\nIn the dry season, water becomes scarce in the village of Karangtengah. The wells run low, and women walk two kilometers to the nearest spring, carrying heavy jerrycans on their heads. The village head has asked the district government for a new pipeline, but the request has been waiting for two years. Meanwhile, the villagers have learned to use every drop carefully: they collect rainwater in large tanks during the wet season and reuse washing water for their vegetable gardens. Life goes on, but everyone agrees that a reliable water supply would change the village completely.\n\nIn the passage, the word 'scarce' is closest in meaning to ...",
+    options: [
+      "very dirty",
+      "extremely cold",
+      "easy to carry",
+      "dangerous to drink",
+      "hard to find",
+    ],
+    answerIndex: 4,
+    explanation:
+      "Konteksnya: sumur mengering dan warga harus berjalan dua kilometer untuk mencari air. Jadi 'scarce' berarti sulit didapat. Pilihan lain tidak sesuai konteks.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-23",
+    subtest: "literasi-inggris",
+    subtopic: "Author's purpose",
+    text: "Read the passage below.\n\nEvery year, millions of sea turtles mistake floating plastic bags for jellyfish, their favorite food. The plastic blocks their stomachs, and many turtles die slowly of starvation. On some beaches, volunteers now patrol at dawn during nesting season, collecting plastic before the turtles come ashore. But cleaning beaches is not enough: as long as single-use plastic keeps flowing into the sea, the turtles will keep dying. The real solution is to use less plastic — to carry a reusable bag, to refuse a straw, to choose products with less packaging. The turtles cannot protect themselves; only people can.\n\nWhat is the author's main purpose in writing this passage?",
+    options: [
+      "To persuade readers to use less single-use plastic.",
+      "To explain how to patrol a beach at dawn.",
+      "To describe the diet of sea turtles.",
+      "To list the names of beaches where turtles nest.",
+    ],
+    answerIndex: 0,
+    explanation:
+      "Penulis memaparkan bahaya plastik bagi penyu lalu menyerukan perubahan perilaku (membawa tas pakai ulang, menolak sedotan). Itu adalah ajakan persuasif. Pilihan lain hanya rincian dalam teks, bukan tujuan penulis.",
+    source: "contoh",
+  },
+  {
+    id: "contoh-le-24",
+    subtest: "literasi-inggris",
+    subtopic: "Author's purpose",
+    text: "Read the passage below.\n\nThe human heart is about the size of a fist and sits slightly to the left of the center of the chest. It works like a pump, pushing blood through a network of vessels that would stretch for nearly 100,000 kilometers if laid end to end. Each day, the heart beats about 100,000 times, moving roughly 7,500 liters of blood. The heart has four chambers: the two upper chambers receive blood, and the two lower chambers pump it out. Valves between the chambers open and close to keep the blood flowing in one direction. When a person exercises, the heart beats faster to supply the muscles with more oxygen.\n\nWhat is the author's main purpose in writing this passage?",
+    options: [
+      "To persuade readers to exercise every day.",
+      "To warn readers about heart disease.",
+      "To inform readers about how the human heart works.",
+      "To tell a story about a heart surgeon.",
+    ],
+    answerIndex: 2,
+    explanation:
+      "Bacaan menyajikan fakta tentang ukuran, cara kerja, dan jumlah denyut jantung tanpa ajakan bertindak atau peringatan — tujuannya memberi informasi, bukan membujuk atau memperingatkan.",
+    source: "contoh",
+  },
 ];
 
-/** Sample questions for one subtest (15 for matematika/literasi, 14 for the five newer subtests). */
+/** Sample questions for one subtest (25 for matematika/literasi, 24 for the five newer subtests). */
 export function sampleQuestionsFor(subtest: Question["subtest"]): Question[] {
   return SAMPLE_QUESTIONS.filter((q) => q.subtest === subtest);
 }

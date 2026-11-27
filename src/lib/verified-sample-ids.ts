@@ -1,6 +1,8 @@
 // Static seed of the Verified Question Bank: IDs of the hand-written
-// sample questions that passed the audit of 2026-11-26 (100/100 VERIFIED,
-// evidence in ~/workspace/your_files/latihsnbt-sample-audit.md).
+// sample questions that passed audit (170/170 VERIFIED: 100 batch 1 on
+// 2026-11-26 + 70 batch 2 on 2026-11-28; evidence in
+// ~/workspace/your_files/latihsnbt-sample-audit.md and
+// ~/workspace/your_files/latihsnbt-sample-audit-batch2.md).
 //
 // These IDs point into SAMPLE_QUESTIONS (src/lib/sample-questions.ts),
 // which is NEVER modified by the bank. If a later audit rejects a
@@ -8,7 +10,7 @@
 // without touching the sample file itself.
 
 export const VERIFIED_SAMPLE_IDS: readonly string[] = [
-  // Penalaran Matematika (15)
+  // Penalaran Matematika (25)
   "contoh-mat-1",
   "contoh-mat-2",
   "contoh-mat-3",
@@ -24,7 +26,17 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-mat-13",
   "contoh-mat-14",
   "contoh-mat-15",
-  // Literasi Bahasa Indonesia (15)
+  "contoh-mat-16",
+  "contoh-mat-17",
+  "contoh-mat-18",
+  "contoh-mat-19",
+  "contoh-mat-20",
+  "contoh-mat-21",
+  "contoh-mat-22",
+  "contoh-mat-23",
+  "contoh-mat-24",
+  "contoh-mat-25",
+  // Literasi Bahasa Indonesia (25)
   "contoh-lit-1",
   "contoh-lit-2",
   "contoh-lit-3",
@@ -40,7 +52,17 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-lit-13",
   "contoh-lit-14",
   "contoh-lit-15",
-  // Penalaran Umum (14)
+  "contoh-lit-16",
+  "contoh-lit-17",
+  "contoh-lit-18",
+  "contoh-lit-19",
+  "contoh-lit-20",
+  "contoh-lit-21",
+  "contoh-lit-22",
+  "contoh-lit-23",
+  "contoh-lit-24",
+  "contoh-lit-25",
+  // Penalaran Umum (24)
   "contoh-pu-1",
   "contoh-pu-2",
   "contoh-pu-3",
@@ -55,7 +77,17 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-pu-12",
   "contoh-pu-13",
   "contoh-pu-14",
-  // Pengetahuan dan Pemahaman Umum (14)
+  "contoh-pu-15",
+  "contoh-pu-16",
+  "contoh-pu-17",
+  "contoh-pu-18",
+  "contoh-pu-19",
+  "contoh-pu-20",
+  "contoh-pu-21",
+  "contoh-pu-22",
+  "contoh-pu-23",
+  "contoh-pu-24",
+  // Pengetahuan dan Pemahaman Umum (24)
   "contoh-ppu-1",
   "contoh-ppu-2",
   "contoh-ppu-3",
@@ -70,7 +102,17 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-ppu-12",
   "contoh-ppu-13",
   "contoh-ppu-14",
-  // Pengetahuan Kuantitatif (14)
+  "contoh-ppu-15",
+  "contoh-ppu-16",
+  "contoh-ppu-17",
+  "contoh-ppu-18",
+  "contoh-ppu-19",
+  "contoh-ppu-20",
+  "contoh-ppu-21",
+  "contoh-ppu-22",
+  "contoh-ppu-23",
+  "contoh-ppu-24",
+  // Pengetahuan Kuantitatif (24)
   "contoh-pk-1",
   "contoh-pk-2",
   "contoh-pk-3",
@@ -85,7 +127,17 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-pk-12",
   "contoh-pk-13",
   "contoh-pk-14",
-  // Pemahaman Bacaan dan Menulis (14)
+  "contoh-pk-15",
+  "contoh-pk-16",
+  "contoh-pk-17",
+  "contoh-pk-18",
+  "contoh-pk-19",
+  "contoh-pk-20",
+  "contoh-pk-21",
+  "contoh-pk-22",
+  "contoh-pk-23",
+  "contoh-pk-24",
+  // Pemahaman Bacaan dan Menulis (24)
   "contoh-pbm-1",
   "contoh-pbm-2",
   "contoh-pbm-3",
@@ -100,7 +152,17 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-pbm-12",
   "contoh-pbm-13",
   "contoh-pbm-14",
-  // Literasi dalam Bahasa Inggris (14)
+  "contoh-pbm-15",
+  "contoh-pbm-16",
+  "contoh-pbm-17",
+  "contoh-pbm-18",
+  "contoh-pbm-19",
+  "contoh-pbm-20",
+  "contoh-pbm-21",
+  "contoh-pbm-22",
+  "contoh-pbm-23",
+  "contoh-pbm-24",
+  // Literasi dalam Bahasa Inggris (24)
   "contoh-le-1",
   "contoh-le-2",
   "contoh-le-3",
@@ -115,4 +177,14 @@ export const VERIFIED_SAMPLE_IDS: readonly string[] = [
   "contoh-le-12",
   "contoh-le-13",
   "contoh-le-14",
+  "contoh-le-15",
+  "contoh-le-16",
+  "contoh-le-17",
+  "contoh-le-18",
+  "contoh-le-19",
+  "contoh-le-20",
+  "contoh-le-21",
+  "contoh-le-22",
+  "contoh-le-23",
+  "contoh-le-24",
 ];

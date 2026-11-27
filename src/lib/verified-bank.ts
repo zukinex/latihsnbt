@@ -1,8 +1,9 @@
 // Verified Question Bank — the only source of fallback questions.
 //
 // Two layers, never mixed with unvalidated questions:
-//   A. Static seed: the 100 hand-written sample questions that passed the
-//      audit of 2026-11-26 (VERIFIED_SAMPLE_IDS -> SAMPLE_QUESTIONS).
+//   A. Static seed: the 170 hand-written sample questions that passed audit
+//      (100 batch 1 on 2026-11-26 + 70 batch 2 on 2026-11-28;
+//      VERIFIED_SAMPLE_IDS -> SAMPLE_QUESTIONS).
 //      The sample file itself is never modified; removing an ID from the
 //      seed list is how a question leaves the bank.
 //   B. Runtime cache: localStorage `latihsnbt-verified-bank-v1`, capped at

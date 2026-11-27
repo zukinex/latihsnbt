@@ -123,9 +123,9 @@ export default function Home() {
       setStage("loading");
       const count = m === "drill" ? DRILL_QUESTION_COUNT : TRYOUT_QUESTION_COUNT;
       // In sample mode a Tryout serves at most the subtest's bank size
-      // (14 for the five newer subtests). In AI mode the request is 15, but
-      // the served set can be 14 when the Verified Bank fills the shortfall
-      // for a subtest whose bank holds only 14 questions.
+      // (25 for the two original subtests, 24 for the five newer ones).
+      // In AI mode the request is 15, and the Verified Bank can always fill
+      // the shortfall (bank holds 24-25 per subtest).
       const tryoutCount = configured ? TRYOUT_QUESTION_COUNT : SUBTESTS[st].bankSize;
       setLoadingMsg(
         m === "drill"

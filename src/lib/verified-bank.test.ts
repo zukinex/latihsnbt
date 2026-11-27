@@ -1,8 +1,8 @@
 // Tests for the Verified Question Bank (verified-bank.ts).
 //
 // The bank's invariant: only VALID questions may enter, and only verified
-// questions may be served. The static seed is the 100 hand-written samples
-// that passed the 2026-11-26 audit; the runtime layer is localStorage
+// questions may be served. The static seed is the 170 hand-written samples
+// (100 batch 1 + 70 batch 2) that passed audit; the runtime layer is localStorage
 // (cap 200) for validator-approved AI questions.
 import { beforeEach, describe, expect, it } from "vitest";
 import { SAMPLE_QUESTIONS } from "./sample-questions";
@@ -95,9 +95,9 @@ const SUBTEST_BY_PREFIX: Record<string, SubtestId> = {
 };
 
 describe("verified bank — static seed (2026-11-26 audit)", () => {
-  it("contains exactly the 100 audited sample IDs", () => {
-    expect(VERIFIED_SAMPLE_IDS).toHaveLength(100);
-    expect(new Set(VERIFIED_SAMPLE_IDS).size).toBe(100);
+  it("contains exactly the 170 audited sample IDs", () => {
+    expect(VERIFIED_SAMPLE_IDS).toHaveLength(170);
+    expect(new Set(VERIFIED_SAMPLE_IDS).size).toBe(170);
   });
 
   it("every seed ID resolves to a real sample question with the matching subtest", () => {
@@ -110,14 +110,14 @@ describe("verified bank — static seed (2026-11-26 audit)", () => {
     }
   });
 
-  it("serves the full audited seed per subtest (15/15/14/14/14/14/14)", () => {
-    expect(getVerifiedFor("matematika", 15)).toHaveLength(15);
-    expect(getVerifiedFor("literasi", 15)).toHaveLength(15);
-    expect(getVerifiedFor("penalaran-umum", 14)).toHaveLength(14);
-    expect(getVerifiedFor("pengetahuan-umum", 14)).toHaveLength(14);
-    expect(getVerifiedFor("pengetahuan-kuantitatif", 14)).toHaveLength(14);
-    expect(getVerifiedFor("bacaan-menulis", 14)).toHaveLength(14);
-    expect(getVerifiedFor("literasi-inggris", 14)).toHaveLength(14);
+  it("serves the full audited seed per subtest (25/25/24/24/24/24/24)", () => {
+    expect(getVerifiedFor("matematika", 25)).toHaveLength(25);
+    expect(getVerifiedFor("literasi", 25)).toHaveLength(25);
+    expect(getVerifiedFor("penalaran-umum", 24)).toHaveLength(24);
+    expect(getVerifiedFor("pengetahuan-umum", 24)).toHaveLength(24);
+    expect(getVerifiedFor("pengetahuan-kuantitatif", 24)).toHaveLength(24);
+    expect(getVerifiedFor("bacaan-menulis", 24)).toHaveLength(24);
+    expect(getVerifiedFor("literasi-inggris", 24)).toHaveLength(24);
   });
 
   it("marks every served seed question verified: true", () => {
@@ -133,7 +133,7 @@ describe("verified bank — addVerified (single write path)", () => {
       true,
     );
     expect(getBankStats("matematika").runtimeCount).toBe(1);
-    const served = getVerifiedFor("matematika", 16);
+    const served = getVerifiedFor("matematika", 26);
     expect(served.some((q) => q.id === VALID_MATH.id)).toBe(true);
   });
 
@@ -190,8 +190,8 @@ describe("verified bank — serving", () => {
   it("never serves the same question twice in one session", () => {
     const first = getVerifiedFor("matematika", 10);
     expect(first).toHaveLength(10);
-    const second = getVerifiedFor("matematika", 10, new Set(first.map((q) => q.id)));
-    expect(second).toHaveLength(5);
+    const second = getVerifiedFor("matematika", 15, new Set(first.map((q) => q.id)));
+    expect(second).toHaveLength(15);
     const overlap = first.filter((q) => second.some((s) => s.id === q.id));
     expect(overlap).toHaveLength(0);
   });
@@ -203,13 +203,13 @@ describe("verified bank — serving", () => {
   });
 
   it("returns fewer than requested when the bank is short, never unvalidated", () => {
-    const served = getVerifiedFor("penalaran-umum", 20);
-    expect(served).toHaveLength(14);
+    const served = getVerifiedFor("penalaran-umum", 30);
+    expect(served).toHaveLength(24);
     expect(served.every((q) => q.verified === true)).toBe(true);
   });
 
   it("returns nothing when every bank question is already excluded (bank empty for the session)", () => {
-    const allSeedIds = new Set(getVerifiedFor("matematika", 15).map((q) => q.id));
+    const allSeedIds = new Set(getVerifiedFor("matematika", 25).map((q) => q.id));
     expect(getVerifiedFor("matematika", 5, allSeedIds)).toHaveLength(0);
   });
 
@@ -217,7 +217,7 @@ describe("verified bank — serving", () => {
     addVerified(VALID_MATH, { generator: "gemini-3.8-flash", difficulty: "SNBT" });
     expect(getBankStats().runtimeCount).toBe(1);
     clearRuntimeBank();
-    expect(getBankStats()).toEqual({ seedCount: 100, runtimeCount: 0, total: 100 });
+    expect(getBankStats()).toEqual({ seedCount: 170, runtimeCount: 0, total: 170 });
     expect(getVerifiedFor("matematika", 15)).toHaveLength(15);
   });
 });
@@ -233,7 +233,7 @@ describe("verified bank — provenance (P0-4)", () => {
 
   it("serves runtime entries with verifiedBy 'validator'", () => {
     addVerified(VALID_MATH, { generator: "gemini-3.8-flash", difficulty: "SNBT" });
-    const served = getVerifiedFor("matematika", 16);
+    const served = getVerifiedFor("matematika", 26);
     expect(served.find((q) => q.id === VALID_MATH.id)?.verifiedBy).toBe("validator");
   });
 
@@ -252,7 +252,7 @@ describe("verified bank — provenance (P0-4)", () => {
       },
     ];
     localStore.set(VERIFIED_BANK_STORAGE_KEY, JSON.stringify(raw));
-    const served = getVerifiedFor("matematika", 16);
+    const served = getVerifiedFor("matematika", 26);
     expect(served.find((q) => q.id === VALID_MATH.id)?.verifiedBy).toBe("validator");
   });
 });
@@ -300,7 +300,7 @@ describe("verified bank — load guard (P0-5/P0-8/P0-10)", () => {
       rawEntry({ question: { id: "bank-v0" }, meta: { validatorVersion: 0 } }),
       rawEntry({ question: { id: "bank-v1" }, meta: { validatorVersion: 1 } }),
     ]);
-    const served = getVerifiedFor("matematika", 16);
+    const served = getVerifiedFor("matematika", 26);
     expect(served.some((q) => q.id === "bank-v0")).toBe(false);
     expect(served.some((q) => q.id === "bank-v1")).toBe(true);
     expect(VALIDATOR_VERSION).toBe(1);
@@ -400,17 +400,17 @@ describe("verified bank — provenance allowlist (P0-10)", () => {
 });
 
 describe("verified bank — focus subtopics (P1-11)", () => {
-  // Matematika seed: 5 subtopics x 3 questions each.
-  it("serves focus-subtopic questions first (all 3 Statistika before anything else)", () => {
+  // Matematika seed: 5 subtopics x 5 questions each.
+  it("serves focus-subtopic questions first (Statistika before anything else)", () => {
     const served = getVerifiedFor("matematika", 3, new Set(), ["Statistika"]);
     expect(served).toHaveLength(3);
     expect(served.every((q) => q.subtopic === "Statistika")).toBe(true);
   });
 
   it("fills with other subtopics only after the focus pool is exhausted", () => {
-    const served = getVerifiedFor("matematika", 5, new Set(), ["Statistika"]);
-    expect(served.slice(0, 3).every((q) => q.subtopic === "Statistika")).toBe(true);
-    expect(served.slice(3).every((q) => q.subtopic !== "Statistika")).toBe(true);
+    const served = getVerifiedFor("matematika", 7, new Set(), ["Statistika"]);
+    expect(served.slice(0, 5).every((q) => q.subtopic === "Statistika")).toBe(true);
+    expect(served.slice(5).every((q) => q.subtopic !== "Statistika")).toBe(true);
   });
 
   it("behaves like the unfocused pool when no focus is given", () => {

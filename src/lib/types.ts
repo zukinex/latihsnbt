@@ -69,7 +69,7 @@ export interface SubtestInfo {
    */
   numericQuestions: boolean;
   /** How many hand-written sample questions exist for this subtest
-   *  (15 for the two original subtests, 14 for the five added later).
+   *  (25/25/24/24/24/24/24 after the 2026-11-28 batch-2 expansion).
    *  A sample-mode Tryout serves at most this many questions. */
   bankSize: number;
 }
@@ -83,7 +83,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Penalaran kuantitatif level SMA: fungsi dan pertumbuhan, peluang, optimasi, barisan dan deret, statistika.",
     subtopics: ["Fungsi dan pertumbuhan", "Peluang", "Optimasi", "Barisan dan deret", "Statistika"],
     numericQuestions: true,
-    bankSize: 15,
+    bankSize: 25,
   },
   literasi: {
     id: "literasi",
@@ -93,7 +93,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Memahami bacaan level SNBT: simpulan, sikap penulis, evaluasi argumen, struktur teks, dan inferensi.",
     subtopics: ["Simpulan", "Sikap penulis", "Evaluasi argumen", "Struktur teks", "Inferensi"],
     numericQuestions: false,
-    bankSize: 15,
+    bankSize: 25,
   },
   "penalaran-umum": {
     id: "penalaran-umum",
@@ -103,7 +103,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Penalaran induktif, deduktif, dan kuantitatif level SNBT: pola bilangan dan huruf, analogi, silogisme, dan penalaran angka.",
     subtopics: ["Induktif", "Deduktif", "Kuantitatif"],
     numericQuestions: true,
-    bankSize: 14,
+    bankSize: 24,
   },
   "pengetahuan-umum": {
     id: "pengetahuan-umum",
@@ -113,7 +113,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Leksikal, informasi umum, dan pengetahuan umum: makna kata dalam konteks, fakta, dan wawasan umum.",
     subtopics: ["Leksikal", "Informasi umum", "Pengetahuan umum"],
     numericQuestions: false,
-    bankSize: 14,
+    bankSize: 24,
   },
   "bacaan-menulis": {
     id: "bacaan-menulis",
@@ -123,7 +123,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Memilih, menata, dan memperbaiki gagasan dalam teks: gagasan utama, urutan kalimat yang logis, dan kalimat efektif.",
     subtopics: ["Pemilihan gagasan", "Penataan gagasan", "Perbaikan gagasan"],
     numericQuestions: false,
-    bankSize: 14,
+    bankSize: 24,
   },
   "pengetahuan-kuantitatif": {
     id: "pengetahuan-kuantitatif",
@@ -133,7 +133,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Matematika dasar level SNBT: bilangan, aljabar, geometri dan pengukuran, data dan peluang.",
     subtopics: ["Bilangan", "Aljabar", "Geometri dan pengukuran", "Data dan peluang"],
     numericQuestions: true,
-    bankSize: 14,
+    bankSize: 24,
   },
   "literasi-inggris": {
     id: "literasi-inggris",
@@ -143,7 +143,7 @@ export const SUBTESTS: Record<SubtestId, SubtestInfo> = {
       "Reading comprehension in English: main idea, inference, vocabulary in context, and author's purpose.",
     subtopics: ["Main idea", "Inference", "Vocabulary in context", "Author's purpose"],
     numericQuestions: false,
-    bankSize: 14,
+    bankSize: 24,
   },
 };
 

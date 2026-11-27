@@ -115,7 +115,7 @@ lebih awal (processing bisa berjam-jam).
 | 8 | Text description (Inggris) | ✅ DRAFT SIAP | DEVPOST-DRAFT.md Bahasa Inggris; isi URL hosting setelah deploy; cek akhir sebelum paste: bagian "how Firebase AI Logic is used" harus eksplisit. |
 | 9 | Video demo ≤3 mnt, YouTube publik, Inggris | ⚠️ BELUM DIREKAM | Script ada (DEMO-VIDEO-SCRIPT.md): 0:00–0:30 ide, 0:30–1:00 drill on-device, 1:00–1:40 tryout cloud. Rekam SETELAH live AI test lolos. Upload lebih awal (processing lama). |
 | 10 | Hosted URL | ⚠️ BELUM DEPLOY | Butuh reCAPTCHA + env vars Vercel (langkah user) baru deploy. Sangat dianjurkan juri, tapi opsional. |
-| 11 | App minimal mendukung Bahasa Inggris | ❌ GAP BARU | UI aplikasi Bahasa Indonesia saja (dicek di page.tsx: semua string UI Indonesia; tidak ada string UI Inggris). FAQ: "Your app must at least support English." Perbaikan: toggle bahasa ID/EN untuk UI (konten soal SNBT tetap Indonesia — itu wajar, soalnya ujiannya memang Indonesia). Perlu keputusan user + kerjaan kode sebelum submit. |
+| 11 | App minimal mendukung Bahasa Inggris | ✅ TERPENUHI (26 Nov ~21:27 WIB) | Toggle ID/EN ditambahkan (commit 5c205944, 191/191 tests): semua teks UI diterjemahkan, default Indonesia, tersimpan di localStorage; konten soal/nama subtes/subtopik tetap Indonesia (istilah ujian). Deskripsi sasaran ditambahkan di home: "Dibuat untuk pelajar Indonesia yang bersiap menghadapi SNBT" (EN: "Built for Indonesian students preparing for SNBT"). |
 | 12 | Materi submission Bahasa Inggris | ✅ (draft Inggris) | Description + video (narasi Inggris) sudah direncanakan Inggris. |
 | 13 | Proyek gratis | ✅ TERPENUHI | Free, no login. |
 | 14 | Deadline 1 Des 05:00 WIB | ⏰ 4 HARI LAGI | Commit setelah deadline tidak dinilai. |
@@ -123,19 +123,19 @@ lebih awal (processing bisa berjam-jam).
 
 ## F. Gap yang harus diberesin (urut prioritas)
 
-1. **Dukungan Bahasa Inggris di UI (BARU, dari studi ini)** — risiko
-   Stage 1 pass/fail. Opsi: toggle ID/EN untuk teks UI (tombol, label,
-   instruksi); konten soal tetap Indonesia. Butuh keputusan user.
-2. **Bukti on-device Nano jalan live** — butuh Chrome yang mendukung
+1. **Bukti on-device Nano jalan live** — butuh Chrome yang mendukung
    Nano + flag diaktifkan, lalu satu drill direkam/dites. Tanpa ini,
    klaim hybrid + segmen video 0:30–1:00 tidak bisa dibuktikan.
-3. **Live AI test ulang besok (27 Nov 16:00 WIB)** — sudah dijadwalkan.
+2. **Live AI test ulang besok (27 Nov 16:00 WIB)** — sudah dijadwalkan.
    Kalau berhasil → live AI kembali; kalau tetap timeout 60 detik →
    kirim dengan fallback bank (jujur, sudah terbukti bekerja).
-4. **reCAPTCHA Enterprise + deploy Vercel** — langkah user di console;
+3. **reCAPTCHA Enterprise + deploy Vercel** — langkah user di console;
    tanpa ini tidak ada hosted URL dan AI production gagal.
-5. **Video demo + submit Devpost** — sebelum 1 Des 05:00 WIB.
+4. **Video demo + submit Devpost** — sebelum 1 Des 05:00 WIB.
    Registrasi Devpost user (bonyonkar) belum terkonfirmasi.
+
+(Selesai 26 Nov ~21:27 WIB: toggle ID/EN + deskripsi sasaran Indonesia —
+commit 5c205944, 191/191 tests. Dulu gap #1, kini syarat #11 terpenuhi.)
 
 ## G. Catatan kuota (risiko saat penjurian)
 

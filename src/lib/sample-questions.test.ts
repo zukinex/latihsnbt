@@ -6,51 +6,51 @@ import { SAMPLE_QUESTIONS, sampleQuestionsFor } from "./sample-questions";
 import { SUBTESTS, type SubtestId } from "./types";
 
 describe("sample question bank", () => {
-  it("has 100 questions: 15 for the two original subtests, 14 for the five newer ones", () => {
-    expect(SAMPLE_QUESTIONS).toHaveLength(100);
-    expect(sampleQuestionsFor("matematika")).toHaveLength(15);
-    expect(sampleQuestionsFor("literasi")).toHaveLength(15);
-    expect(sampleQuestionsFor("penalaran-umum")).toHaveLength(14);
-    expect(sampleQuestionsFor("pengetahuan-umum")).toHaveLength(14);
-    expect(sampleQuestionsFor("bacaan-menulis")).toHaveLength(14);
-    expect(sampleQuestionsFor("pengetahuan-kuantitatif")).toHaveLength(14);
-    expect(sampleQuestionsFor("literasi-inggris")).toHaveLength(14);
+  it("has 170 questions: 25/25/24/24/24/24/24 (100 batch 1 + 70 batch 2)", () => {
+    expect(SAMPLE_QUESTIONS).toHaveLength(170);
+    expect(sampleQuestionsFor("matematika")).toHaveLength(25);
+    expect(sampleQuestionsFor("literasi")).toHaveLength(25);
+    expect(sampleQuestionsFor("penalaran-umum")).toHaveLength(24);
+    expect(sampleQuestionsFor("pengetahuan-umum")).toHaveLength(24);
+    expect(sampleQuestionsFor("bacaan-menulis")).toHaveLength(24);
+    expect(sampleQuestionsFor("pengetahuan-kuantitatif")).toHaveLength(24);
+    expect(sampleQuestionsFor("literasi-inggris")).toHaveLength(24);
   });
 
   it("covers each subtopic the expected number of times", () => {
     const expected: Record<SubtestId, Record<string, number>> = {
       matematika: {
-        "Fungsi dan pertumbuhan": 3,
-        Peluang: 3,
-        Optimasi: 3,
-        "Barisan dan deret": 3,
-        Statistika: 3,
+        "Fungsi dan pertumbuhan": 5,
+        Peluang: 5,
+        Optimasi: 5,
+        "Barisan dan deret": 5,
+        Statistika: 5,
       },
       literasi: {
-        Simpulan: 3,
-        "Sikap penulis": 3,
-        "Evaluasi argumen": 3,
-        "Struktur teks": 3,
-        Inferensi: 3,
+        Simpulan: 5,
+        "Sikap penulis": 5,
+        "Evaluasi argumen": 5,
+        "Struktur teks": 5,
+        Inferensi: 5,
       },
-      "penalaran-umum": { Induktif: 5, Deduktif: 5, Kuantitatif: 4 },
-      "pengetahuan-umum": { Leksikal: 5, "Informasi umum": 5, "Pengetahuan umum": 4 },
+      "penalaran-umum": { Induktif: 9, Deduktif: 8, Kuantitatif: 7 },
+      "pengetahuan-umum": { Leksikal: 9, "Informasi umum": 8, "Pengetahuan umum": 7 },
       "bacaan-menulis": {
-        "Pemilihan gagasan": 5,
-        "Penataan gagasan": 5,
-        "Perbaikan gagasan": 4,
+        "Pemilihan gagasan": 9,
+        "Penataan gagasan": 8,
+        "Perbaikan gagasan": 7,
       },
       "pengetahuan-kuantitatif": {
-        Bilangan: 4,
-        Aljabar: 4,
-        "Geometri dan pengukuran": 3,
-        "Data dan peluang": 3,
+        Bilangan: 7,
+        Aljabar: 7,
+        "Geometri dan pengukuran": 5,
+        "Data dan peluang": 5,
       },
       "literasi-inggris": {
-        "Main idea": 4,
-        Inference: 4,
-        "Vocabulary in context": 3,
-        "Author's purpose": 3,
+        "Main idea": 7,
+        Inference: 7,
+        "Vocabulary in context": 5,
+        "Author's purpose": 5,
       },
     };
     (Object.keys(SUBTESTS) as SubtestId[]).forEach((st) => {
@@ -83,8 +83,8 @@ describe("sample question bank", () => {
   it("spreads correct answers across option positions", () => {
     const counts = [0, 0, 0, 0, 0];
     for (const q of SAMPLE_QUESTIONS) counts[q.answerIndex] += 1;
-    // No position holds more than a third of the keys.
-    for (const c of counts) expect(c).toBeLessThanOrEqual(33);
+    // No position holds more than a third of the keys (a third of 170 is 56).
+    for (const c of counts) expect(c).toBeLessThanOrEqual(56);
     expect(counts[4]).toBeGreaterThan(0);
   });
 });
@@ -102,9 +102,9 @@ describe("sampleSet", () => {
     expect(sampleSet("literasi", 15).questions).toHaveLength(15);
   });
 
-  it("returns 14 questions for a new-subtest tryout (bank smaller than 15, no error)", () => {
-    expect(sampleSet("penalaran-umum", 15).questions).toHaveLength(14);
-    expect(sampleSet("literasi-inggris", 15).questions).toHaveLength(14);
+  it("returns 15 questions for a tryout in every subtest (bank now 24-25)", () => {
+    expect(sampleSet("penalaran-umum", 15).questions).toHaveLength(15);
+    expect(sampleSet("literasi-inggris", 15).questions).toHaveLength(15);
   });
 
   it("returns 5 drill questions for a new subtest", () => {
@@ -112,8 +112,8 @@ describe("sampleSet", () => {
   });
 
   it("returns at most the available questions when count exceeds the bank", () => {
-    expect(sampleSet("matematika", 99).questions).toHaveLength(15);
-    expect(sampleSet("penalaran-umum", 99).questions).toHaveLength(14);
+    expect(sampleSet("matematika", 99).questions).toHaveLength(25);
+    expect(sampleSet("penalaran-umum", 99).questions).toHaveLength(24);
   });
 
   it("varies the selection across calls (does not always show the same first 5)", () => {
