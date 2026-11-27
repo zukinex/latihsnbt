@@ -118,8 +118,8 @@ lebih awal (processing bisa berjam-jam).
 | 11 | App minimal mendukung Bahasa Inggris | ✅ TERPENUHI (26 Nov ~21:27 WIB) | Toggle ID/EN ditambahkan (commit 5c205944, 191/191 tests): semua teks UI diterjemahkan, default Indonesia, tersimpan di localStorage; konten soal/nama subtes/subtopik tetap Indonesia (istilah ujian). Deskripsi sasaran ditambahkan di home: "Dibuat untuk pelajar Indonesia yang bersiap menghadapi SNBT" (EN: "Built for Indonesian students preparing for SNBT"). |
 | 12 | Materi submission Bahasa Inggris | ✅ (draft Inggris) | Description + video (narasi Inggris) sudah direncanakan Inggris. |
 | 13 | Proyek gratis | ✅ TERPENUHI | Free, no login. |
-| 14 | Deadline 1 Des 05:00 WIB | ⏰ 4 HARI LAGI | Commit setelah deadline tidak dinilai. |
-| 15 | Live AI (3.8-flash) berfungsi | ⚠️ TERBLOKIR KUOTA | 429: kuota Free Tier 20/hari habis 26 Nov; reset ~15:46 WIB 27 Nov. Test ulang 1× 3 soal @60 detik dijadwalkan 27 Nov 16:00 WIB (cron `latihsnbt-quota-reset-retest`). Timeout 60 detik belum teruji lawan model yang merespons. |
+| 14 | Deadline 1 Des 05:00 WIB | ⏰ 3 HARI LAGI | Commit setelah deadline tidak dinilai. |
+| 15 | Live AI berfungsi | ✅ TERBUKTI (Hydrogen, 27 Nov ~23:48 WIB) | Model diganti ke gemini-4-hydrogen + ThinkingLevel.LOW (commit e24d176e): tryout e2e 1/3 soal dari AI (validator-verified) + 2/3 dari bank — regenerasi tidak selesai dalam jendela tes 65 detik (budget produk 90 detik); drill plan AI 7 hari penuh dalam 16,5 detik (pertama kalinya AI drill plan berhasil). 3.8-flash tidak pernah jawab dalam 60 detik (3 timeout). Limit Hydrogen 5 request/menit; limit harian belum diketahui. |
 
 ## F. Gap yang harus diberesin (urut prioritas)
 

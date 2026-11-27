@@ -33,8 +33,18 @@ import {
   initializeAppCheck,
 } from "firebase/app-check";
 
-function env(name: string): string | undefined {
-  const v = process.env[name];
+/**
+ * Trim a raw env value; empty/blank counts as unset.
+ *
+ * NOTE: env vars MUST be read with STATIC `process.env.NEXT_PUBLIC_*`
+ * references (never `process.env[name]`). Next.js inlines env values
+ * into the client bundle only for statically analyzable references; a
+ * dynamic lookup compiles to an empty object in the browser, so
+ * `getFirebaseConfigStatus()` returned "not configured" in production
+ * even though the vars were set correctly in Vercel (found 2026-11-28:
+ * the built client chunk contained the key NAMES but none of the VALUES).
+ */
+function clean(v: string | undefined): string | undefined {
   return v && v.trim().length > 0 ? v.trim() : undefined;
 }
 
@@ -50,9 +60,9 @@ export interface FirebaseConfigStatus {
 
 /** True only when a real (non-placeholder) config is present. */
 export function getFirebaseConfigStatus(): FirebaseConfigStatus {
-  const apiKey = env("NEXT_PUBLIC_FIREBASE_API_KEY");
-  const projectId = env("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
-  const appId = env("NEXT_PUBLIC_FIREBASE_APP_ID");
+  const apiKey = clean(process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
+  const projectId = clean(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+  const appId = clean(process.env.NEXT_PUBLIC_FIREBASE_APP_ID);
   const configured =
     !isPlaceholder(apiKey) && !isPlaceholder(projectId) && !isPlaceholder(appId);
   return { configured, projectId: configured ? (projectId ?? null) : null };
@@ -68,13 +78,13 @@ export function getFirebaseApp(): FirebaseApp | null {
   const status = getFirebaseConfigStatus();
   if (!status.configured) return null;
   const config = {
-    apiKey: env("NEXT_PUBLIC_FIREBASE_API_KEY"),
-    authDomain: env("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"),
-    projectId: env("NEXT_PUBLIC_FIREBASE_PROJECT_ID"),
-    storageBucket: env("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"),
-    messagingSenderId: env("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"),
-    appId: env("NEXT_PUBLIC_FIREBASE_APP_ID"),
-    measurementId: env("NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID"),
+    apiKey: clean(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
+    authDomain: clean(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
+    projectId: clean(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
+    storageBucket: clean(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
+    messagingSenderId: clean(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+    appId: clean(process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
+    measurementId: clean(process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID),
   };
   try {
     app = initializeApp(config);
@@ -85,7 +95,7 @@ export function getFirebaseApp(): FirebaseApp | null {
   if (!appCheckTried) {
     appCheckTried = true;
     try {
-      if (env("NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG") === "true") {
+      if (clean(process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_DEBUG) === "true") {
         (self as unknown as Record<string, unknown>).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
         initializeAppCheck(app, {
           // Placeholder only: in debug mode the SDK never calls this
@@ -96,7 +106,7 @@ export function getFirebaseApp(): FirebaseApp | null {
           }),
         });
       } else {
-        const siteKey = env("NEXT_PUBLIC_FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY");
+        const siteKey = clean(process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY);
         if (siteKey && !isPlaceholder(siteKey)) {
           initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(siteKey) });
         }
