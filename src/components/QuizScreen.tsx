@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import ReportForm from "./ReportForm";
 import { subtopicLabel, t, type Language } from "../lib/i18n";
 import {
   formatDuration,
@@ -12,7 +13,7 @@ import {
   sessionSourceInfo,
   verifiedTagText,
 } from "../lib/logic";
-import { isReported, reportQuestion } from "../lib/storage";
+import { isReported } from "../lib/storage";
 import {
   InferenceSource,
   Question,
@@ -51,6 +52,7 @@ export default function QuizScreen({
   const [reported, setReported] = useState<string[]>(() =>
     questions.filter((q) => isReported(q.id)).map((q) => q.id),
   );
+  const [showReport, setShowReport] = useState(false);
 
   const total = questions.length;
   const current = questions[index];
@@ -84,14 +86,7 @@ export default function QuizScreen({
   }
 
   function handleReport() {
-    reportQuestion({
-      questionId: current.id,
-      subtest: current.subtest,
-      subtopic: current.subtopic,
-      text: current.text,
-      reportedAt: new Date().toISOString(),
-    });
-    setReported((prev) => [...prev, current.id]);
+    setShowReport(true);
   }
 
   function finish() {
@@ -158,6 +153,11 @@ export default function QuizScreen({
               {currentTag}
             </span>
           )}
+          {current.corrected && (
+            <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 normal-case text-sky-800">
+              {t(lang, "report.correctedTag")}
+            </span>
+          )}
         </p>
         <p className="mt-2 whitespace-pre-line text-base leading-relaxed text-gray-900">
           {current.text}
@@ -195,11 +195,25 @@ export default function QuizScreen({
           </button>
           <span className="text-xs text-gray-400">{t(lang, "quiz.keyHidden")}</span>
         </div>
+        {showReport && !isReportedNow && (
+          <ReportForm
+            lang={lang}
+            question={current}
+            onSubmitted={() => {
+              setReported((prev) => [...prev, current.id]);
+              setShowReport(false);
+            }}
+            onCancel={() => setShowReport(false)}
+          />
+        )}
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-2">
         <button
-          onClick={() => setIndex((v) => Math.max(0, v - 1))}
+          onClick={() => {
+            setShowReport(false);
+            setIndex((v) => Math.max(0, v - 1));
+          }}
           disabled={index === 0}
           className="rounded-lg border bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"
         >
@@ -214,7 +228,10 @@ export default function QuizScreen({
           </button>
         ) : (
           <button
-            onClick={() => setIndex((v) => Math.min(total - 1, v + 1))}
+            onClick={() => {
+              setShowReport(false);
+              setIndex((v) => Math.min(total - 1, v + 1));
+            }}
             className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             {t(lang, "quiz.next")}

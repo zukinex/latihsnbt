@@ -20,6 +20,7 @@
 // every served question `verified: true` for the UI badge.
 
 import { shuffle } from "./logic";
+import { applyCorrections, getCachedCorrections } from "./reports";
 import { SAMPLE_QUESTIONS } from "./sample-questions";
 import { Question, SUBTESTS, SubtestId } from "./types";
 import { isStructurallyValid, validateQuestion } from "./validation";
@@ -239,7 +240,9 @@ export function getVerifiedFor(
     seen.add(entry.question.id);
     served.push(entry.question);
   }
-  return served;
+  // Serve-time overlay: a question the crowd confirmed wrong serves with
+  // its fixed key (the seed bank itself is never modified).
+  return applyCorrections(served, getCachedCorrections());
 }
 
 export function getBankStats(subtest?: SubtestId): VerifiedBankStats {

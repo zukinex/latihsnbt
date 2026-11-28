@@ -3,6 +3,7 @@
 "use client";
 
 import { useState } from "react";
+import ReportForm from "./ReportForm";
 import { subtopicLabel, t, type Language } from "../lib/i18n";
 import {
   inferenceSourceLabel,
@@ -10,7 +11,7 @@ import {
   sessionSourceInfo,
   verifiedTagText,
 } from "../lib/logic";
-import { isReported, reportQuestion } from "../lib/storage";
+import { isReported } from "../lib/storage";
 import {
   AnsweredQuestion,
   DrillPlan,
@@ -42,21 +43,26 @@ interface ResultsScreenProps {
 
 function ReportButton({ lang, q }: { lang: Language; q: AnsweredQuestion["question"] }) {
   const [done, setDone] = useState(() => isReported(q.id));
+  const [showForm, setShowForm] = useState(false);
   if (done) {
     return <span className="text-xs font-semibold text-emerald-700">{t(lang, "results.reported")}</span>;
   }
+  if (showForm) {
+    return (
+      <ReportForm
+        lang={lang}
+        question={q}
+        onSubmitted={() => {
+          setDone(true);
+          setShowForm(false);
+        }}
+        onCancel={() => setShowForm(false)}
+      />
+    );
+  }
   return (
     <button
-      onClick={() => {
-        reportQuestion({
-          questionId: q.id,
-          subtest: q.subtest,
-          subtopic: q.subtopic,
-          text: q.text,
-          reportedAt: new Date().toISOString(),
-        });
-        setDone(true);
-      }}
+      onClick={() => setShowForm(true)}
       className="text-xs text-gray-500 underline hover:text-gray-700"
     >
       {t(lang, "results.report")}
@@ -187,6 +193,7 @@ export default function ResultsScreen({
                 {t(lang, "results.questionLabel", i + 1, subtopicLabel(a.question.subtopic, lang))}
                 {a.question.source === "contoh" ? ` · ${t(lang, "results.sampleQuestion")}` : ""}
                 {tag ? ` · ${tag}` : ""}
+                {a.question.corrected ? ` · ${t(lang, "report.correctedTag")}` : ""}
               </p>
               <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-900">
                 {a.question.text}

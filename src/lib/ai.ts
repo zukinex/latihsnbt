@@ -46,6 +46,7 @@ import {
 import { getFirebaseApp } from "./firebase";
 import { t, type Language } from "./i18n";
 import { parseGeneratedQuestionsText, shuffle } from "./logic";
+import { applyCorrections, getCachedCorrections } from "./reports";
 import { sampleQuestionsFor } from "./sample-questions";
 import { validateQuestionSet } from "./validation";
 import { addVerified, getVerifiedFor } from "./verified-bank";
@@ -589,7 +590,12 @@ export async function generateQuestions(
       addVerified(q, { generator: "gemini-4-hydrogen", difficulty: "SNBT" });
     }
   }
-  return { questions: valid.slice(0, count), inferenceSource, fromBank, generationFailed };
+  return {
+    questions: applyCorrections(valid.slice(0, count), getCachedCorrections()),
+    inferenceSource,
+    fromBank,
+    generationFailed,
+  };
 }
 
 // --- 7-day drill plan (cloud) ---
@@ -703,13 +709,14 @@ export function sampleSet(
   // "audit"). A sample that a future audit removes from the seed is still
   // served in unconfigured mode, but without the verified badge.
   const verifiedIds = new Set(VERIFIED_SAMPLE_IDS);
+  const questions = [...focus, ...rest].slice(0, count).map((q) => {
+    const isVerified = verifiedIds.has(q.id);
+    return isVerified
+      ? { ...q, verified: true, verifiedBy: "audit" as const }
+      : { ...q, verified: false };
+  });
   return {
-    questions: [...focus, ...rest].slice(0, count).map((q) => {
-      const isVerified = verifiedIds.has(q.id);
-      return isVerified
-        ? { ...q, verified: true, verifiedBy: "audit" as const }
-        : { ...q, verified: false };
-    }),
+    questions: applyCorrections(questions, getCachedCorrections()),
     inferenceSource: null,
   };
 }

@@ -52,6 +52,14 @@ export interface Question {
    * "terverifikasi" label. Absent when `verified` is absent.
    */
   verifiedBy?: "audit" | "validator";
+  /**
+   * Set by the crowd-report overlay when ten distinct devices agreed this
+   * question's key was wrong and picked the same correct option: the
+   * answerIndex (and explanation, when supplied) on this object is the
+   * corrected one. The seed bank is never modified — the fix is applied
+   * at serve time only.
+   */
+  corrected?: boolean;
 }
 
 export interface SubtestInfo {

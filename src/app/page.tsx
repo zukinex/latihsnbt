@@ -11,6 +11,7 @@ import { AiError, generateDrillPlan, generateQuestions, sampleSet } from "../lib
 import type { GeneratedSet, GenerationStage } from "../lib/ai";
 import { getFirebaseConfigStatus } from "../lib/firebase";
 import { readLanguage, saveLanguage, t, type Language } from "../lib/i18n";
+import { ensureCorrectionsLoaded } from "../lib/reports";
 import {
   buildDrillPlanFallback,
   computeWeaknessMap,
@@ -108,6 +109,12 @@ export default function Home() {
   const [history, setHistory] = useState<SessionRecord[]>([]);
   useEffect(() => {
     setHistory(loadProgress());
+  }, []);
+
+  // Crowd-confirmed question corrections (Firestore, best-effort): load
+  // once per page visit so served questions carry their fixed keys.
+  useEffect(() => {
+    ensureCorrectionsLoaded();
   }, []);
 
   const bestScores = Object.fromEntries(

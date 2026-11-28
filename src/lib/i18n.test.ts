@@ -81,6 +81,15 @@ describe("i18n dictionary completeness", () => {
     expect(t("id", "quiz.questionsInIndonesian")).toContain("bahasa Indonesia");
   });
 
+  it("states the report form strings in English", () => {
+    expect(t("en", "report.title")).toBe("Report this question");
+    expect(t("en", "report.keyWrong")).toBe("Answer key is wrong");
+    expect(t("en", "report.correctAnswer")).toBe("Which answer do you think is correct?");
+    expect(t("en", "report.submit")).toBe("Submit report");
+    expect(t("en", "report.correctedTag")).toBe("✓ Fixed from reports");
+    expect(t("id", "report.correctedTag")).toBe("✓ Diperbaiki dari laporan");
+  });
+
   it("has a description for every subtest in both languages", () => {
     const ids: SubtestId[] = [
       "matematika",

@@ -1,0 +1,51 @@
+// Firestore security rules for LatihSNBT crowd-validated reports.
+//
+// HOW TO APPLY (Firebase console, ~2 minutes, no CLI needed):
+//   1. console.firebase.google.com → project latih-snbt → Build → Firestore Database
+//   2. If no database exists yet: "Create database" → Production mode → any location
+//      (choose asia-southeast1 if offered — closest to the students).
+//   3. Rules tab → replace the whole file with the rules below → Publish.
+//
+// WHAT THE RULES ALLOW (guests, no login — the app has no auth):
+//   - question-reports: anyone may read; anyone may create/update a report
+//     doc, but the doc must carry a deviceId string and a valid wrongKind.
+//     Deletes are forbidden, so reports cannot be erased by a client.
+//   - question-corrections: anyone may read; a correction may only be
+//     created/updated when its reportCount is >= 10 (the agreement
+//     threshold) and its correctAnswerIndex is a valid option index.
+//     Deletes are forbidden, so a confirmed fix cannot be removed by a client.
+//
+// KNOWN LIMIT (accepted for the jam): a determined client could write a
+// correction doc that claims reportCount >= 10 without the reports to back
+// it. The client code only writes a correction after counting real reports,
+// but the rules cannot verify that count without a trusted backend
+// (Cloud Functions need the Blaze pay-as-you-go plan, which this project
+// does not use). The threshold + shape validation makes casual abuse
+// impossible; the fix is honest for the app's scale.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /question-reports/{docId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.deviceId is string
+        && request.resource.data.deviceId.size() > 0
+        && request.resource.data.questionId is string
+        && request.resource.data.wrongKind in ['key', 'unclear', 'explanation', 'other']
+        && (request.resource.data.proposedAnswerIndex is int
+          && request.resource.data.proposedAnswerIndex >= 0
+          && request.resource.data.proposedAnswerIndex <= 4
+          || request.resource.data.proposedAnswerIndex == null);
+      allow delete: if false;
+    }
+    match /question-corrections/{questionId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.questionId == questionId
+        && request.resource.data.correctAnswerIndex is int
+        && request.resource.data.correctAnswerIndex >= 0
+        && request.resource.data.correctAnswerIndex <= 4
+        && request.resource.data.reportCount is int
+        && request.resource.data.reportCount >= 10;
+      allow delete: if false;
+    }
+  }
+}

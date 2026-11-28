@@ -5,6 +5,9 @@
 > "AI is on" banner confirmed 28 Nov 2026).
 > Live AI gate PASSED 27 Nov 2026 (Hydrogen E2E): tryout served 1/3 questions
 > from live AI (validator-verified) + AI drill plan generated in 16.5s.
+> 28 Nov update: that gate used a LOCAL debug token — on the live site AI
+> is BLOCKED by App Check (401) until reCAPTCHA Enterprise is set up.
+> Re-verify one live AI drill after setup before submitting.
 
 ## Project name
 LatihSNBT
