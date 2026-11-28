@@ -1,8 +1,10 @@
 # Devpost Draft — LatihSNBT (#BuildHybridAI 2026)
 
 > Draft only — paste into Devpost once the app is live. Submission materials
-> must be in English. Links (hosted URL) to be filled after Vercel deploy.
-> Do NOT submit before the live AI test passes.
+> must be in English. Hosted app: https://latihsnbt.vercel.app/ (live, green
+> "AI is on" banner confirmed 28 Nov 2026).
+> Live AI gate PASSED 27 Nov 2026 (Hydrogen E2E): tryout served 1/3 questions
+> from live AI (validator-verified) + AI drill plan generated in 16.5s.
 
 ## Project name
 LatihSNBT
@@ -69,7 +71,7 @@ The app is text-only: no image generation, no TTS.
 Next.js, React, TypeScript, Tailwind CSS, Firebase AI Logic, Vercel
 
 ## Links (fill after deploy)
-- Hosted app: [TODO — Vercel URL]
+- Hosted app: https://latihsnbt.vercel.app/
 - Repo: https://github.com/zukinex/latihsnbt (public, MIT)
 - Demo video: [TODO — public YouTube, ≤3 min]
 

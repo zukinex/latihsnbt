@@ -95,8 +95,8 @@ const STRINGS = {
   "notice.unreachable": { id: "AI tidak dapat dihubungi.", en: "AI could not be reached." },
   // --- Page footer ---
   "page.footer": {
-    id: "LatihSNBT · #BuildHybridAI 2026 · 7 subtes SNBT · 100 soal contoh terverifikasi",
-    en: "LatihSNBT · #BuildHybridAI 2026 · 7 SNBT subtests · 100 verified sample questions",
+    id: "LatihSNBT · #BuildHybridAI 2026 · 7 subtes SNBT · 170 soal contoh terverifikasi",
+    en: "LatihSNBT · #BuildHybridAI 2026 · 7 SNBT subtests · 170 verified sample questions",
   },
   // --- Home screen ---
   "home.tagline": {

@@ -4,8 +4,10 @@
 > seconds must show the idea, who it's for, the problem, and how Firebase AI
 > Logic makes it work. Record the screen (OBS), add English TTS voiceover in
 > CapCut (same pattern as the KiroPay video), keep the app UI in Indonesian —
-> the narration explains it. Record ONLY after the live AI test passes
-> (real generated questions on camera, not sample mode).
+> the narration explains it. Gate MET 27 Nov 2026 (Hydrogen E2E passed:
+> tryout 1/3 AI questions + AI drill plan in 16.5s) — safe to record.
+> Show the source badge honestly on camera; if a session falls back to
+> the verified bank, say so in the narration instead of hiding it.
 
 ## Total runtime target: ~2 min 30 s
 
