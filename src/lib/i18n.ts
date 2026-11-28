@@ -143,6 +143,10 @@ const STRINGS = {
     id: "Kunci jawaban tidak ditampilkan di sini.",
     en: "The answer key is not shown here.",
   },
+  "quiz.questionsInIndonesian": {
+    id: "Soal dalam bahasa Indonesia — SNBT adalah ujian berbahasa Indonesia.",
+    en: "Questions are in Indonesian — SNBT is an Indonesian-language exam.",
+  },
   "quiz.prev": { id: "← Sebelumnya", en: "← Previous" },
   "quiz.next": { id: "Berikutnya →", en: "Next →" },
   "quiz.finish": { id: "Selesai & lihat hasil", en: "Finish & see results" },

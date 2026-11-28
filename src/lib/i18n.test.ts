@@ -74,6 +74,13 @@ describe("i18n dictionary completeness", () => {
     expect(t("en", "home.audience")).toContain("SNBT");
   });
 
+  it("states that questions stay Indonesian in EN mode", () => {
+    expect(t("en", "quiz.questionsInIndonesian")).toBe(
+      "Questions are in Indonesian — SNBT is an Indonesian-language exam.",
+    );
+    expect(t("id", "quiz.questionsInIndonesian")).toContain("bahasa Indonesia");
+  });
+
   it("has a description for every subtest in both languages", () => {
     const ids: SubtestId[] = [
       "matematika",

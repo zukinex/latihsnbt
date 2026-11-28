@@ -144,6 +144,12 @@ export default function QuizScreen({
         />
       </div>
 
+      {lang === "en" && (
+        <p className="mb-6 text-center text-xs text-gray-500">
+          {t(lang, "quiz.questionsInIndonesian")}
+        </p>
+      )}
+
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
           {subtopicLabel(current.subtopic, lang)}
